@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <category
+            id="mb.template.categoryWizard"
+            name="Templates">
+      </category>
+      <wizard
+            category="mb.template.categoryWizard"
+            class="mb.template.wizard.TemplateWizard"
+            icon="icons/sample.gif"
+            id="mb.template.wizard"
+            name="Template Wizard">
+      </wizard>
+   </extension>
+   <extension
+         point="org.eclipse.ui.commands">
+      <command
+            categoryId="mb.template.categoryDialog"
+            id="mb.template.command"
+            name="Source and Header">
+      </command>
+      <category
+            id="mb.template.categoryDialog"
+            name="Templates">
+      </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.menus">
+      <menuContribution
+            allPopups="false"
+            locationURI="popup:common.new.menu?after=additions">
+         <command
+               commandId="mb.template.command"
+               icon="icons/sample.gif"
+               label="Source and Header"
+               style="push">
+         </command>
+      </menuContribution>
+   </extension>
+
+</plugin>

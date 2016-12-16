@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Tests
+Bundle-SymbolicName: mb.template.tests
+Bundle-Version: 1.0.0.qualifier
+Bundle-Activator: mb.template.tests.wizard.Activator
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ mb.template;bundle-version="1.0.0",
+ org.junit
+Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-ActivationPolicy: lazy
