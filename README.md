@@ -1,0 +1,2 @@
+# Template
+Template Eclipse plugin
