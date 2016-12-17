@@ -23,7 +23,19 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import mb.template.*;
+
+import mb.template.dialog.FolderSelectionDialog;
+import mb.template.listeners.IChangeValueListener;
+import mb.template.listeners.IClickListener;
+import mb.template.manager.FileManager;
+import mb.template.manager.PlaceholderManager;
+import mb.template.manager.ProjectManager;
+import mb.template.manager.TemplateManager;
+import mb.template.placeholder.PlaceholderBean;
+import mb.template.placeholder.PlaceholderContainerBean;
+import mb.template.preference.PreferenceSettings;
+import mb.template.validator.Validator;
+import mb.template.wizard.table.editor.ColumnEditingSupport;
 
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
