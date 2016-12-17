@@ -1,7 +1,7 @@
 /**
  * 
  */
-package mb.template.placeholder;
+package mb.template.manager;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,16 +25,16 @@ import org.eclipse.swt.widgets.Display;
  * @author mbaev
  *
  */
-public class PlaceholderFinder
+public class PlaceholderManager
 {
-    private final static String PLACEHOLDER_REGEX = "\\$\\{(.*?)\\}";
+    //private final static String PLACEHOLDER_REGEX = "\\$\\{(.*?)\\}";
 
     private Pattern pattern;
     private Matcher matcher;
 
 
 
-    public PlaceholderFinder()
+    public PlaceholderManager()
     {
         this.pattern = null;
         this.matcher = null;
@@ -46,10 +46,9 @@ public class PlaceholderFinder
     {
         ArrayList<String> allFoundPlaceholders = new ArrayList<>();
 
-        this.pattern = Pattern.compile(PLACEHOLDER_REGEX);
+        this.pattern = Pattern.compile("(?i)__Prefix____TaskName__");
         this.matcher = null;
         Charset charset = StandardCharsets.UTF_8;
-
 
         for (int i = 0; i < files.size(); i++)
         {
@@ -65,6 +64,7 @@ public class PlaceholderFinder
 
                 while (this.matcher.find())
                 {
+                    System.out.println(this.matcher.group().toString());
                     if (!allFoundPlaceholders.contains(this.matcher.group()))
                     {
                         System.out.println(this.matcher.group());
@@ -93,6 +93,8 @@ public class PlaceholderFinder
 
                 while (this.matcher.find())
                 {
+                    System.out.println(this.matcher.group().toString());
+                    
                     if (!allFoundPlaceholders.contains(this.matcher.group()))
                     {
                         allFoundPlaceholders.add(this.matcher.group());

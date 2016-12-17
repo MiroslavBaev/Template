@@ -27,11 +27,11 @@ import mb.template.dialog.FolderSelectionDialog;
 import mb.template.listeners.IChangeValueListener;
 import mb.template.listeners.IClickListener;
 import mb.template.manager.FileManager;
+import mb.template.manager.PlaceholderManager;
 import mb.template.manager.ProjectManager;
 import mb.template.manager.TemplateManager;
 import mb.template.placeholder.PlaceholderBean;
 import mb.template.placeholder.PlaceholderContainerBean;
-import mb.template.placeholder.PlaceholderFinder;
 import mb.template.preference.PreferenceSettings;
 import mb.template.validator.Validator;
 import mb.template.wizard.table.editor.ColumnEditingSupport;
@@ -76,8 +76,6 @@ public class TemplatePage extends WizardPage
         this.preferenceSettings = new PreferenceSettings();
         this.placeholderContainer = new PlaceholderContainerBean();
         this.projectFolderPath = ProjectManager.getSelectedElementPath();
-        
-        this.templateFolderPath = null;
     }
 
 
@@ -145,7 +143,7 @@ public class TemplatePage extends WizardPage
 
                 if (templateSourceFolderPath == null)
                 {
-                    return;
+                    templateSourceFolderPath = "";
                 }
 
                 DirectoryDialog directoryDialog = new DirectoryDialog(parent.getShell());
@@ -236,7 +234,15 @@ public class TemplatePage extends WizardPage
      */
     private void findPlaceholdersInFiles(IProgressMonitor monitor)
     {
-        PlaceholderFinder placeholderFinder = new PlaceholderFinder();
+        String keyPreference = preferenceSettings.loadSetting(PREFERENCE_KEY_TEMPLATE_PATH);
+        
+        // Validate for first start plugin. Yet there is not one recorded key(path);
+        if(keyPreference == null)
+        {
+            return;
+        }
+        
+        PlaceholderManager placeholderFinder = new PlaceholderManager();
 
         List<String> allPlaceholders = new ArrayList<>();
 

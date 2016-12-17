@@ -195,6 +195,12 @@ public class ProjectManager
 
         IStructuredSelection selection = (IStructuredSelection) service.getSelection();
 
+        if(selection == null)
+        {
+            return null;
+        }
+        
+        
         IStructuredSelection iStructuredSelection = (IStructuredSelection) selection;
 
         Object element = iStructuredSelection.getFirstElement();

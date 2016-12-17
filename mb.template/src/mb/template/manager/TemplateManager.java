@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,7 +55,7 @@ public class TemplateManager
         {
             Charset charset = StandardCharsets.UTF_8;
 
-            String content;
+            String content = null;
             try
             {
                 content = new String(Files.readAllBytes(source.toPath()), charset);
@@ -76,18 +75,6 @@ public class TemplateManager
         }
     }
     
-    public void copyFilesAndReplacePlaceholders(File source, File destination, PlaceholderBean placeholder)
-    {
-        List<PlaceholderBean> placeholders = new ArrayList<PlaceholderBean>();
-        
-        if(placeholder != null)
-        {
-            placeholders.add(placeholder);
-        }
-        
-        copyFilesAndReplacePlaceholders(source, destination, placeholders);
-    }
-
 
 
     /*
