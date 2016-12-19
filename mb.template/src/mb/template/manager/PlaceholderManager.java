@@ -28,7 +28,6 @@ import org.eclipse.swt.widgets.Display;
 public class PlaceholderManager
 {
     //private final static String PLACEHOLDER_REGEX = "\\$\\{(.*?)\\}";
-
     private Pattern pattern;
     private Matcher matcher;
 

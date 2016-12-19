@@ -23,7 +23,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
-
 import mb.template.dialog.FolderSelectionDialog;
 import mb.template.listeners.IChangeValueListener;
 import mb.template.listeners.IClickListener;
@@ -34,6 +33,8 @@ import mb.template.manager.TemplateManager;
 import mb.template.placeholder.PlaceholderBean;
 import mb.template.placeholder.PlaceholderContainerBean;
 import mb.template.preference.PreferenceSettings;
+import mb.template.serialization.TemplatesInfo;
+import mb.template.serialization.Template;
 import mb.template.validator.Validator;
 import mb.template.wizard.table.editor.ColumnEditingSupport;
 
@@ -52,7 +53,7 @@ import org.eclipse.swt.widgets.Button;
  */
 public class TemplatePage extends WizardPage
 {
-    private final static String PREFERENCE_KEY_TEMPLATE_PATH = "templatePath";
+    private final static String TEMPLATE_PATH_PREFERENCE = "templatePath";
 
     private Composite container;
     private TableViewer viewer;
@@ -141,7 +142,7 @@ public class TemplatePage extends WizardPage
             @Override
             public void widgetSelected(SelectionEvent e)
             {
-                String templateSourceFolderPath = preferenceSettings.loadSetting(PREFERENCE_KEY_TEMPLATE_PATH);
+                String templateSourceFolderPath = preferenceSettings.loadSetting(TEMPLATE_PATH_PREFERENCE);
 
                 if (templateSourceFolderPath == null)
                 {
@@ -157,7 +158,7 @@ public class TemplatePage extends WizardPage
 
                 String newPath = directoryDialog.open();
 
-                preferenceSettings.saveSetting(PREFERENCE_KEY_TEMPLATE_PATH, newPath);
+                preferenceSettings.saveSetting(TEMPLATE_PATH_PREFERENCE, newPath);
 
                 researchTemplatesForPlacehodlers();
 
@@ -202,6 +203,32 @@ public class TemplatePage extends WizardPage
 
         initDataBindings();
 
+        
+        TemplatesInfo templatesInfo = new TemplatesInfo();
+        
+        List<Template> templates = new ArrayList<>();
+        
+        Template t1 = new Template("Miro","C://miro",9);
+        
+        templates.add(t1);
+        
+        templatesInfo.save(templates);
+        
+        
+        List<Template> lTemplates = new ArrayList<>();
+        
+        
+        lTemplates = templatesInfo.load();
+        
+        
+        for (Template template : lTemplates)
+        {
+            System.out.println(template.getName());
+            System.out.println(template.getPath());
+            System.out.println(template.getNumberOfSelections());
+            
+        }
+        
     }
 
 
@@ -236,7 +263,7 @@ public class TemplatePage extends WizardPage
      */
     private void findPlaceholdersInFiles(IProgressMonitor monitor)
     {
-        String keyPreference = preferenceSettings.loadSetting(PREFERENCE_KEY_TEMPLATE_PATH);
+        String keyPreference = preferenceSettings.loadSetting(TEMPLATE_PATH_PREFERENCE);
         
         // Validate for first start plugin. Yet there is not one recorded key(path);
         if(keyPreference == null)
@@ -251,7 +278,7 @@ public class TemplatePage extends WizardPage
         FileManager fileManager = new FileManager();
 
         // Recursive searching.Input - path Output - files
-        List<File> files = fileManager.searchFilesInDirectory(new File(preferenceSettings.loadSetting(PREFERENCE_KEY_TEMPLATE_PATH)), monitor);
+        List<File> files = fileManager.searchFilesInDirectory(new File(preferenceSettings.loadSetting(TEMPLATE_PATH_PREFERENCE)), monitor);
 
         allPlaceholders = placeholderFinder.search(files, monitor);
 
@@ -332,7 +359,7 @@ public class TemplatePage extends WizardPage
      */
     private void setTemplatePath()
     {
-        templateFolderPath = preferenceSettings.loadSetting(PREFERENCE_KEY_TEMPLATE_PATH);
+        templateFolderPath = preferenceSettings.loadSetting(TEMPLATE_PATH_PREFERENCE);
 
         if (templateFolderPath != null)
             txtTemplateSourceFolder.setText(templateFolderPath);
