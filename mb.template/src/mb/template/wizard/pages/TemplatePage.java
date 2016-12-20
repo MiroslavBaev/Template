@@ -37,12 +37,13 @@ import mb.template.storages.Template;
 import mb.template.storages.TemplatesStorage;
 import mb.template.validator.Validator;
 import mb.template.wizard.table.editor.ColumnEditingSupport;
-
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.jface.viewers.ComboViewer;
 
 
 /**
@@ -58,8 +59,7 @@ public class TemplatePage extends WizardPage
     private Composite container;
     private TableViewer viewer;
     private Text txtProjectFolder;
-    private Text txtTemplateSourceFolder;
-
+    private ComboViewer comboViewer;
 
     private String projectFolderPath;
     private String templateFolderPath;
@@ -93,9 +93,9 @@ public class TemplatePage extends WizardPage
         lblTemplateSourceFolder.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         lblTemplateSourceFolder.setText("Template source folder");
 
-        txtTemplateSourceFolder = new Text(container, SWT.BORDER);
-        txtTemplateSourceFolder.setEditable(false);
-        txtTemplateSourceFolder.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
+        comboViewer = new ComboViewer(container, SWT.READ_ONLY);
+        Combo combo = comboViewer.getCombo();
+        combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
         Button btnTemplateSourceFolderBrowse = new Button(container, SWT.NONE);
         btnTemplateSourceFolderBrowse.setText("Browse..");
@@ -157,12 +157,14 @@ public class TemplatePage extends WizardPage
                 directoryDialog.setFilterPath(templateSourceFolderPath);
 
                 String newPath = directoryDialog.open();
-
-                preferenceSettings.saveSetting(TEMPLATE_PATH_PREFERENCE, newPath);
+                
+                TemplatesStorage templatesStorage = new TemplatesStorage();
+                    
+                templatesStorage.addPath(newPath);
 
                 researchTemplatesForPlacehodlers();
 
-                setTemplatePath();
+                setTemplate();
             }
 
         });
@@ -195,7 +197,7 @@ public class TemplatePage extends WizardPage
         });
 
 
-        setTemplatePath();
+        setTemplate();
         setProjectPath();
 
         setPageComplete(false);
@@ -238,13 +240,13 @@ public class TemplatePage extends WizardPage
     private void findPlaceholdersInFiles(IProgressMonitor monitor)
     {
         String keyPreference = preferenceSettings.loadSetting(TEMPLATE_PATH_PREFERENCE);
-        
+
         // Validate for first start plugin. Yet there is not one recorded key(path);
-        if(keyPreference == null)
+        if (keyPreference == null)
         {
             return;
         }
-        
+
         PlaceholderManager placeholderFinder = new PlaceholderManager();
 
         List<String> allPlaceholders = new ArrayList<>();
@@ -331,12 +333,24 @@ public class TemplatePage extends WizardPage
      * Set template path in text box
      * 
      */
-    private void setTemplatePath()
+    private void setTemplate()
     {
-        templateFolderPath = preferenceSettings.loadSetting(TEMPLATE_PATH_PREFERENCE);
-
-        if (templateFolderPath != null)
-            txtTemplateSourceFolder.setText(templateFolderPath);
+        TemplatesStorage templatesStorage = new TemplatesStorage();
+        FileManager fileManager = new FileManager();
+        
+        List<Template> templates = templatesStorage.load();
+        
+        comboViewer.getCombo().removeAll();
+        
+        if(templates != null)
+        {
+            for (Template template : templates)
+            {
+                comboViewer.getCombo().add(fileManager.getParentFolderNameFromFullPath(template.getPath()));
+            }
+            
+            comboViewer.getCombo().select(0);
+        }
     }
 
 
@@ -350,13 +364,14 @@ public class TemplatePage extends WizardPage
     {
         if (projectFolderPath != null)
         {
-            ProjectManager projectManager = new ProjectManager();
-            
-            String shortProjectPath = projectManager.getShortProjectPath( projectFolderPath);
+            FileManager fileManager = new FileManager();
+
+            String shortProjectPath = fileManager.getParentFolderNameFromFullPath(projectFolderPath);
 
             txtProjectFolder.setText(shortProjectPath);
         }
     }
+
 
 
     /*

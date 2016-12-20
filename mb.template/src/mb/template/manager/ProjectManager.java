@@ -35,65 +35,9 @@ public class ProjectManager
     }
     
     
-    /*
-     * 
-     * Remove directory to workspace folder. Input full path to project, output only name of project.
-     *
-     * Example:
-     * C:\Users\MBaev.HILSCHERDTC\Desktop\runtime-EclipseApplication\Test - > Test
-     * 
-     */
-    public String getShortProjectPath(String projectFolderPath)
-    {
-        if(projectFolderPath == null)
-        {
-            return null;
-        }
-        
-        String workspacePath = getWorkspacePath();
-        
-        if (workspacePath.contains("/"))
-        {
-            workspacePath = workspacePath.replace("/", "\\");
-        }
-
-        if (projectFolderPath.contains("/"))
-        {
-            projectFolderPath = projectFolderPath.replace("/", "\\");
-        }
-
-        projectFolderPath = removeFileFromDirectoryPath(projectFolderPath);
-
-        return projectFolderPath.replace(workspacePath, "");
-    }
+   
     
-    /*
-    *
-    * Remove file from directory path if exist
-    * 
-    * Example:
-    * C:/ProgramFiles/Work/file.exe - > C:/ProgramFiles/Work
-    * 
-    */
-   public String removeFileFromDirectoryPath(String fullPath)
-   {
-       if (fullPath == null)
-       {
-           return null;
-       }
-       if (new File(fullPath).isFile())
-       {
-           char separator = '\\';
-
-           int lastSeparatorIndex = fullPath.lastIndexOf(separator);
-
-           return fullPath.substring(0, lastSeparatorIndex);
-       }
-       else
-       {
-           return fullPath;
-       }
-   }
+    
     
     
     /*
