@@ -314,7 +314,8 @@ public class TemplatePage extends WizardPage
 
         TemplateManager templateManager = new TemplateManager();
 
-        templateManager.copyFilesAndReplacePlaceholders(new File(selectedTemplate.getPath()), new File(projectFolderPath), placeholderContainer.getPlaceholders());
+        templateManager.copyFilesAndReplacePlaceholders(
+                new File(selectedTemplate.getPath()), new File(projectFolderPath), placeholderContainer.getPlaceholders());
 
         ProjectManager.refreshAllProjectInExplorer();
     }

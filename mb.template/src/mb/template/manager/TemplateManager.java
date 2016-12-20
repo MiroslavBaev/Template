@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
+import mb.template.placeholder.PlaceholdePattern;
 import mb.template.placeholder.PlaceholderBean;
 
 
@@ -23,9 +24,6 @@ import mb.template.placeholder.PlaceholderBean;
  */
 public class TemplateManager
 {
-    private final static String PLACEHOLDER_REGEX = "\\$\\{(.*?)\\}";
-
-
 
     public void copyFilesAndReplacePlaceholders(File source, File destination, List<PlaceholderBean> placeholders)
     {
@@ -93,7 +91,7 @@ public class TemplateManager
                 String oldPath = file.getPath();
 
                 String newPath = oldPath.replaceAll(
-                        PLACEHOLDER_REGEX,
+                        PlaceholdePattern.SPECIFIC_WORD_REGEX,
                         placeholder.getValue().toString());
 
                 return new File(newPath);
@@ -110,7 +108,7 @@ public class TemplateManager
      */
     public String replacePlaceholderInFileContent(String content, List<PlaceholderBean> placeholders)
     {
-        Pattern pattern = Pattern.compile(PLACEHOLDER_REGEX);
+        Pattern pattern = Pattern.compile(PlaceholdePattern.SPECIFIC_WORD_REGEX);
         Matcher matcher = null;
 
         matcher = pattern.matcher(content);
