@@ -33,8 +33,8 @@ import mb.template.manager.TemplateManager;
 import mb.template.placeholder.PlaceholderBean;
 import mb.template.placeholder.PlaceholderContainerBean;
 import mb.template.preference.PreferenceSettings;
-import mb.template.serialization.TemplatesInfo;
-import mb.template.serialization.Template;
+import mb.template.storages.Template;
+import mb.template.storages.TemplatesStorage;
 import mb.template.validator.Validator;
 import mb.template.wizard.table.editor.ColumnEditingSupport;
 
@@ -203,32 +203,6 @@ public class TemplatePage extends WizardPage
 
         initDataBindings();
 
-        
-        TemplatesInfo templatesInfo = new TemplatesInfo();
-        
-        List<Template> templates = new ArrayList<>();
-        
-        Template t1 = new Template("Miro","C://miro",9);
-        
-        templates.add(t1);
-        
-        templatesInfo.save(templates);
-        
-        
-        List<Template> lTemplates = new ArrayList<>();
-        
-        
-        lTemplates = templatesInfo.load();
-        
-        
-        for (Template template : lTemplates)
-        {
-            System.out.println(template.getName());
-            System.out.println(template.getPath());
-            System.out.println(template.getNumberOfSelections());
-            
-        }
-        
     }
 
 
