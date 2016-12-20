@@ -1,9 +1,7 @@
 package mb.template.manager;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;

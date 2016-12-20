@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
-
 import org.eclipse.core.resources.ResourcesPlugin;
 
 
@@ -107,43 +106,50 @@ public class TemplatesStorage
             }
         });
         
-        System.out.println();
-        
         return sorterdList;
         
     }
 
-    
-    public void addPath(String path)
+    /*
+     * 
+     * Create template object from path or increment number of selections, if such object exist. 
+     * Method return position index of object in List
+     */
+    public int addPath(String path)
     {
         if(path == null)
         {
-            return;
+            return -1;
         }
         
         List<Template> templates =  this.load();
         
-        for (Template template : templates)
+        
+        for (int i = 0; i < templates.size(); i++)
         {
-            // Element with this path exist. Change it only.
-            if( template.getPath().equals(path))
+         // Element with this path exist. Change it only.
+            Template currentTemplate = templates.get(i);
+            if(currentTemplate.getPath().equals(path))
             {
-                template.setNumberOfSelections(template.getNumberOfSelections() + 1);
+                templates.get(i).setNumberOfSelections(templates.get(i).getNumberOfSelections() + 1);
                 
                 this.save(templates);
                 
-                return;
+                // Must be sorted again in order to take the correct index for combo selection.
+                templates = this.load();
+                
+                return  templates.indexOf(currentTemplate);
             }
         }
         
-        // Element with this path is not exist. Create new object and add for first selection.
-        // Create and new List, because  
-        
+        // Element with this path is not exist. Create new object and add 1 for first selection.
         Template newTemplate = new Template(path , 1);
         
         templates.add(newTemplate);
         
         this.save(templates);
+        
+        return (this.load().size() - 1);
     }
     
 }

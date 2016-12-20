@@ -14,6 +14,7 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.wizard.WizardPage;
@@ -43,6 +44,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
+import org.eclipse.jface.viewers.ArrayContentProvider;
 import org.eclipse.jface.viewers.ComboViewer;
 
 
@@ -88,31 +90,48 @@ public class TemplatePage extends WizardPage
     {
         this.container = new Composite(parent, SWT.NONE);
         this.container.setLayout(new GridLayout(3, false));
-
+        //
         Label lblTemplateSourceFolder = new Label(container, SWT.NONE);
         lblTemplateSourceFolder.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         lblTemplateSourceFolder.setText("Template source folder");
-
+        //
         comboViewer = new ComboViewer(container, SWT.READ_ONLY);
         Combo combo = comboViewer.getCombo();
         combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
+        //
+        comboViewer.setContentProvider(ArrayContentProvider.getInstance());
+        comboViewer.setLabelProvider(new LabelProvider()
+        {
+            @Override
+            public String getText(Object element)
+            {
+                if (element instanceof Template)
+                {
+                    Template template = (Template) element;
+                    FileManager fileManager = new FileManager();
+                    
+                    return fileManager.getParentFolderNameFromFullPath(template.getPath());
+                }
+                return super.getText(element);
+            }
+        });
+        //
         Button btnTemplateSourceFolderBrowse = new Button(container, SWT.NONE);
         btnTemplateSourceFolderBrowse.setText("Browse..");
-
+        //
         Label lblSeparator = new Label(container, SWT.NONE | SWT.SEPARATOR | SWT.HORIZONTAL);
         lblSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
         //
         Label lblProjectFolder = new Label(container, SWT.NONE);
         lblProjectFolder.setText("Project source folder");
-
+        //
         txtProjectFolder = new Text(container, SWT.BORDER);
         txtProjectFolder.setEditable(false);
         txtProjectFolder.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
+        //
         Button btnProjectFolder = new Button(container, SWT.NONE);
         btnProjectFolder.setText("Browse..");
-
+        //
         lblSeparator = new Label(container, SWT.NONE | SWT.SEPARATOR | SWT.HORIZONTAL);
         lblSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
         //
@@ -142,29 +161,24 @@ public class TemplatePage extends WizardPage
             @Override
             public void widgetSelected(SelectionEvent e)
             {
-                String templateSourceFolderPath = preferenceSettings.loadSetting(TEMPLATE_PATH_PREFERENCE);
-
-                if (templateSourceFolderPath == null)
-                {
-                    templateSourceFolderPath = "";
-                }
-
                 DirectoryDialog directoryDialog = new DirectoryDialog(parent.getShell());
 
                 directoryDialog.setText("Browse Template Folder");
                 directoryDialog.setMessage("Select template folder:");
 
-                directoryDialog.setFilterPath(templateSourceFolderPath);
+                //directoryDialog.setFilterPath(templateSourceFolderPath);
 
                 String newPath = directoryDialog.open();
-                
+
                 TemplatesStorage templatesStorage = new TemplatesStorage();
-                    
-                templatesStorage.addPath(newPath);
+
+               int indexOfSelection = templatesStorage.addPath(newPath);
 
                 researchTemplatesForPlacehodlers();
 
-                setTemplate();
+                setComboTemplates();
+                
+                combo.select(indexOfSelection);
             }
 
         });
@@ -197,7 +211,9 @@ public class TemplatePage extends WizardPage
         });
 
 
-        setTemplate();
+        setComboTemplates();
+        combo.select(0);
+        
         setProjectPath();
 
         setPageComplete(false);
@@ -333,23 +349,17 @@ public class TemplatePage extends WizardPage
      * Set template path in text box
      * 
      */
-    private void setTemplate()
+    private void setComboTemplates()
     {
         TemplatesStorage templatesStorage = new TemplatesStorage();
-        FileManager fileManager = new FileManager();
-        
+
         List<Template> templates = templatesStorage.load();
-        
+
         comboViewer.getCombo().removeAll();
-        
-        if(templates != null)
+
+        if (templates != null)
         {
-            for (Template template : templates)
-            {
-                comboViewer.getCombo().add(fileManager.getParentFolderNameFromFullPath(template.getPath()));
-            }
-            
-            comboViewer.getCombo().select(0);
+            comboViewer.setInput(templates);
         }
     }
 
