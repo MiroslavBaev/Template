@@ -45,21 +45,5 @@
          </command>
       </menuContribution>
    </extension>
-   <extension
-         point="org.eclipse.ui.bindings">
-      <key
-            commandId="mb.template.commands.deleteComboItemCommand"
-            contextId="org.eclipse.ui.contexts.window"
-            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
-            sequence="M1+6">
-      </key>
-   </extension>
-   <extension
-         point="org.eclipse.ui.handlers">
-      <handler
-            class="DeleteComboItemHandler"
-            commandId="mb.template.commands.deleteComboItemCommand">
-      </handler>
-   </extension>
 
 </plugin>

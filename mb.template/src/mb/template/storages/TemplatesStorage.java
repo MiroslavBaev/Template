@@ -110,6 +110,17 @@ public class TemplatesStorage
         
     }
 
+    
+    public void removePath(int index)
+    {
+        List<Template> templates = this.load();
+        
+        templates.remove(index);
+        
+        this.save(templates);
+    }
+    
+    
     /*
      * 
      * Create template object from path or increment number of selections, if such object exist. 

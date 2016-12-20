@@ -19,6 +19,8 @@ import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
@@ -98,8 +100,24 @@ public class TemplatePage extends WizardPage
         //
         comboViewer = new ComboViewer(container, SWT.READ_ONLY | SWT.V_SCROLL);
         Combo combo = comboViewer.getCombo();
-        combo.setVisibleItemCount(5);
+        combo.setVisibleItemCount(8);
         combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        
+        combo.addKeyListener(new KeyAdapter()
+        {
+
+            @Override
+            public void keyPressed(KeyEvent e)
+            {
+                if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == SWT.DEL))
+                {
+                    templatesStorage.removePath(combo.getSelectionIndex());
+                    
+                    setComboTemplates();
+                }
+            }
+            
+        });
         combo.addSelectionListener(new SelectionAdapter()
         {
 
