@@ -107,6 +107,8 @@ public class TemplatesStorage
             }
         });
         
+        System.out.println();
+        
         return sorterdList;
         
     }
