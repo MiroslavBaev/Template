@@ -11,8 +11,7 @@ import java.util.regex.Pattern;
 
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
-
-import mb.template.placeholder.PlaceholdePattern;
+import mb.template.placeholder.PlaceholderPattern;
 import mb.template.placeholder.PlaceholderBean;
 
 
@@ -91,7 +90,7 @@ public class TemplateManager
                 String oldPath = file.getPath();
 
                 String newPath = oldPath.replaceAll(
-                        PlaceholdePattern.SPECIFIC_WORD_REGEX,
+                        PlaceholderPattern.SPECIFIC_WORD_REGEX,
                         placeholder.getValue().toString());
 
                 return new File(newPath);
@@ -108,7 +107,7 @@ public class TemplateManager
      */
     public String replacePlaceholderInFileContent(String content, List<PlaceholderBean> placeholders)
     {
-        Pattern pattern = Pattern.compile(PlaceholdePattern.SPECIFIC_WORD_REGEX);
+        Pattern pattern = Pattern.compile(PlaceholderPattern.SPECIFIC_WORD_REGEX);
         Matcher matcher = null;
 
         matcher = pattern.matcher(content);
