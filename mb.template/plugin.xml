@@ -20,13 +20,17 @@
          point="org.eclipse.ui.commands">
       <command
             categoryId="mb.template.categoryDialog"
-            id="mb.template.command"
+            id="mb.template.commands.menuCommand"
             name="Source and Header">
       </command>
       <category
             id="mb.template.categoryDialog"
             name="Templates">
       </category>
+      <command
+            id="mb.template.commands.deleteComboItemCommand"
+            name="Delete Combo Item">
+      </command>
    </extension>
    <extension
          point="org.eclipse.ui.menus">
@@ -34,12 +38,28 @@
             allPopups="false"
             locationURI="popup:common.new.menu?after=additions">
          <command
-               commandId="mb.template.command"
+               commandId="mb.template.commands.menuCommand"
                icon="icons/sample.gif"
                label="Source and Header"
                style="push">
          </command>
       </menuContribution>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="mb.template.commands.deleteComboItemCommand"
+            contextId="org.eclipse.ui.contexts.window"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+6">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.handlers">
+      <handler
+            class="DeleteComboItemHandler"
+            commandId="mb.template.commands.deleteComboItemCommand">
+      </handler>
    </extension>
 
 </plugin>

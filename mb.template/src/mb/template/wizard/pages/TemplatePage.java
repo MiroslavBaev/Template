@@ -33,7 +33,6 @@ import mb.template.manager.ProjectManager;
 import mb.template.manager.TemplateManager;
 import mb.template.placeholder.PlaceholderBean;
 import mb.template.placeholder.PlaceholderContainerBean;
-import mb.template.preference.PreferenceSettings;
 import mb.template.storages.Template;
 import mb.template.storages.TemplatesStorage;
 import mb.template.validator.Validator;
@@ -56,7 +55,7 @@ import org.eclipse.jface.viewers.ComboViewer;
  */
 public class TemplatePage extends WizardPage
 {
-    private final static String TEMPLATE_PATH_PREFERENCE = "templatePath";
+    // private final static String TEMPLATE_PATH_PREFERENCE = "templatePath";
 
     private Composite container;
     private TableViewer viewer;
@@ -64,11 +63,11 @@ public class TemplatePage extends WizardPage
     private ComboViewer comboViewer;
 
     private String projectFolderPath;
-    private String templateFolderPath;
 
     private PlaceholderContainerBean placeholderContainer;
 
-    private PreferenceSettings preferenceSettings;
+    private TemplatesStorage templatesStorage;
+    private Template selectedTemplate;
 
 
 
@@ -78,9 +77,11 @@ public class TemplatePage extends WizardPage
         setTitle("Template");
         setDescription("Create a new template");
 
-        this.preferenceSettings = new PreferenceSettings();
         this.placeholderContainer = new PlaceholderContainerBean();
         this.projectFolderPath = ProjectManager.getSelectedElementPath();
+
+        this.templatesStorage = new TemplatesStorage();
+        this.selectedTemplate = null;
     }
 
 
@@ -95,9 +96,24 @@ public class TemplatePage extends WizardPage
         lblTemplateSourceFolder.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         lblTemplateSourceFolder.setText("Template source folder");
         //
-        comboViewer = new ComboViewer(container, SWT.READ_ONLY);
+        comboViewer = new ComboViewer(container, SWT.READ_ONLY | SWT.V_SCROLL);
         Combo combo = comboViewer.getCombo();
+        combo.setVisibleItemCount(5);
         combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        combo.addSelectionListener(new SelectionAdapter()
+        {
+
+            @Override
+            public void widgetSelected(SelectionEvent e)
+            {
+                int selectedIndex = comboViewer.getCombo().getSelectionIndex();
+
+                selectedTemplate = templatesStorage.load().get(selectedIndex);
+
+                researchTemplatesForPlacehodlers();
+            }
+
+        });
         //
         comboViewer.setContentProvider(ArrayContentProvider.getInstance());
         comboViewer.setLabelProvider(new LabelProvider()
@@ -109,7 +125,7 @@ public class TemplatePage extends WizardPage
                 {
                     Template template = (Template) element;
                     FileManager fileManager = new FileManager();
-                    
+
                     return fileManager.getParentFolderNameFromFullPath(template.getPath());
                 }
                 return super.getText(element);
@@ -153,7 +169,7 @@ public class TemplatePage extends WizardPage
 
         this.viewer.getTable().setHeaderVisible(true);
 
-        researchTemplatesForPlacehodlers();
+        // researchTemplatesForPlacehodlers();
 
         btnTemplateSourceFolderBrowse.addSelectionListener(new SelectionAdapter()
         {
@@ -166,18 +182,18 @@ public class TemplatePage extends WizardPage
                 directoryDialog.setText("Browse Template Folder");
                 directoryDialog.setMessage("Select template folder:");
 
-                //directoryDialog.setFilterPath(templateSourceFolderPath);
+                // directoryDialog.setFilterPath(templateSourceFolderPath);
 
                 String newPath = directoryDialog.open();
 
                 TemplatesStorage templatesStorage = new TemplatesStorage();
 
-               int indexOfSelection = templatesStorage.addPath(newPath);
+                int indexOfSelection = templatesStorage.addPath(newPath);
 
                 researchTemplatesForPlacehodlers();
 
                 setComboTemplates();
-                
+
                 combo.select(indexOfSelection);
             }
 
@@ -210,17 +226,14 @@ public class TemplatePage extends WizardPage
 
         });
 
-
         setComboTemplates();
-        combo.select(0);
-        
+
         setProjectPath();
 
         setPageComplete(false);
         setControl(this.container);
 
         initDataBindings();
-
     }
 
 
@@ -255,10 +268,7 @@ public class TemplatePage extends WizardPage
      */
     private void findPlaceholdersInFiles(IProgressMonitor monitor)
     {
-        String keyPreference = preferenceSettings.loadSetting(TEMPLATE_PATH_PREFERENCE);
-
-        // Validate for first start plugin. Yet there is not one recorded key(path);
-        if (keyPreference == null)
+        if (selectedTemplate == null)
         {
             return;
         }
@@ -270,7 +280,7 @@ public class TemplatePage extends WizardPage
         FileManager fileManager = new FileManager();
 
         // Recursive searching.Input - path Output - files
-        List<File> files = fileManager.searchFilesInDirectory(new File(preferenceSettings.loadSetting(TEMPLATE_PATH_PREFERENCE)), monitor);
+        List<File> files = fileManager.searchFilesInDirectory(new File(selectedTemplate.getPath()), monitor);
 
         allPlaceholders = placeholderFinder.search(files, monitor);
 
@@ -296,9 +306,15 @@ public class TemplatePage extends WizardPage
 
     public void copyTemplateAndReplaceyPlaceholders()
     {
+
+        if (selectedTemplate == null)
+        {
+            return;
+        }
+
         TemplateManager templateManager = new TemplateManager();
 
-        templateManager.copyFilesAndReplacePlaceholders(new File(templateFolderPath), new File(projectFolderPath), placeholderContainer.getPlaceholders());
+        templateManager.copyFilesAndReplacePlaceholders(new File(selectedTemplate.getPath()), new File(projectFolderPath), placeholderContainer.getPlaceholders());
 
         ProjectManager.refreshAllProjectInExplorer();
     }
@@ -351,7 +367,7 @@ public class TemplatePage extends WizardPage
      */
     private void setComboTemplates()
     {
-        TemplatesStorage templatesStorage = new TemplatesStorage();
+        templatesStorage = new TemplatesStorage();
 
         List<Template> templates = templatesStorage.load();
 
