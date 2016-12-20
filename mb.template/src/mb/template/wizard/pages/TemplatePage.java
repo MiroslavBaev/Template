@@ -14,6 +14,7 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
@@ -102,21 +103,21 @@ public class TemplatePage extends WizardPage
         Combo combo = comboViewer.getCombo();
         combo.setVisibleItemCount(8);
         combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        
+
         combo.addKeyListener(new KeyAdapter()
         {
 
             @Override
             public void keyPressed(KeyEvent e)
             {
-                if(((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == SWT.DEL))
+                if (((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == SWT.DEL))
                 {
                     templatesStorage.removePath(combo.getSelectionIndex());
-                    
+
                     setComboTemplates();
                 }
             }
-            
+
         });
         combo.addSelectionListener(new SelectionAdapter()
         {
@@ -124,9 +125,7 @@ public class TemplatePage extends WizardPage
             @Override
             public void widgetSelected(SelectionEvent e)
             {
-                int selectedIndex = comboViewer.getCombo().getSelectionIndex();
-
-                selectedTemplate = templatesStorage.load().get(selectedIndex);
+                setSelectedProject();
 
                 researchTemplatesForPlacehodlers();
             }
@@ -198,18 +197,26 @@ public class TemplatePage extends WizardPage
                 directoryDialog.setText("Browse Template Folder");
                 directoryDialog.setMessage("Select template folder:");
 
-                // directoryDialog.setFilterPath(templateSourceFolderPath);
+                if (selectedTemplate != null)
+                {
+                    directoryDialog.setFilterPath(selectedTemplate.getPath());
+                }
 
                 String newPath = directoryDialog.open();
+
+                if (newPath == null)
+                {
+                    return;
+                }
 
                 TemplatesStorage templatesStorage = new TemplatesStorage();
 
                 int indexOfSelection = templatesStorage.addPath(newPath);
 
-                combo.select(indexOfSelection);
-
+                setSelectedProject();
                 setComboTemplates();
-                
+
+                combo.select(indexOfSelection);
                 researchTemplatesForPlacehodlers();
             }
 
@@ -248,10 +255,28 @@ public class TemplatePage extends WizardPage
         researchTemplatesForPlacehodlers();
         setProjectPath();
 
+        setSelectedProject();
+
         setPageComplete(false);
         setControl(this.container);
 
         initDataBindings();
+    }
+
+
+
+    private void setSelectedProject()
+    {
+        IStructuredSelection selection = comboViewer.getStructuredSelection();
+
+        if (selection == null)
+        {
+            return;
+        }
+
+        Template template = (Template) selection.getFirstElement();
+
+        selectedTemplate = template;
     }
 
 

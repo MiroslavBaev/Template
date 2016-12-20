@@ -98,14 +98,14 @@ public class FolderSelectionDialog extends Dialog
 
 
 
-    public void SetSelection(String newSelectionProjectFolderPathPath)
+    public void SetSelection(String newSelectionProjectFolderPath)
     {
-        if (newSelectionProjectFolderPathPath == null)
+        if (newSelectionProjectFolderPath == null)
         {
             return;
         }
 
-        selectedProjectFolderPath = newSelectionProjectFolderPathPath;
+        selectedProjectFolderPath = newSelectionProjectFolderPath;
         
     }
 
