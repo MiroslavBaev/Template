@@ -187,8 +187,6 @@ public class TemplatePage extends WizardPage
 
         this.viewer.getTable().setHeaderVisible(true);
 
-        // researchTemplatesForPlacehodlers();
-
         btnTemplateSourceFolderBrowse.addSelectionListener(new SelectionAdapter()
         {
 
@@ -208,11 +206,11 @@ public class TemplatePage extends WizardPage
 
                 int indexOfSelection = templatesStorage.addPath(newPath);
 
-                researchTemplatesForPlacehodlers();
+                combo.select(indexOfSelection);
 
                 setComboTemplates();
-
-                combo.select(indexOfSelection);
+                
+                researchTemplatesForPlacehodlers();
             }
 
         });
@@ -245,7 +243,9 @@ public class TemplatePage extends WizardPage
         });
 
         setComboTemplates();
+        combo.select(0);
 
+        researchTemplatesForPlacehodlers();
         setProjectPath();
 
         setPageComplete(false);
