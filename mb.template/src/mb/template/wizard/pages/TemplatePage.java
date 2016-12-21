@@ -477,18 +477,19 @@ public class TemplatePage extends WizardPage
             @Override
             public String getColumnText(Object element, int columnIndex)
             {
+
+
                 if (columnIndex == 0)
                 {
-                    if (element instanceof PlaceholderBean)
-                    {
-                        String placeholder = ((PlaceholderBean) element).getPlaceholder();
+                    String placeholder = ((PlaceholderBean) element).getPlaceholder();
 
-                        return placeholderContainer.removeCommandFromPlaceholder(placeholder);
-                    }
+                    return placeholderContainer.removeCommandFromPlaceholder(placeholder);
 
                 }
-
-                return null;
+                else
+                {
+                    return super.getColumnText(element, columnIndex);
+                }
 
             }
 
