@@ -37,7 +37,7 @@ public class SearchManager
 
     /*
      * 
-     * Search in content by pattern
+     * Search content by pattern
      * 
      */
     public List<String> search(String content)

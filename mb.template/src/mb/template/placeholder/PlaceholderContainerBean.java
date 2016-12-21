@@ -9,7 +9,6 @@ import java.util.List;
 import mb.template.util.AbstractBean;
 
 
-
 /**
  * All placeholder objects are kept in this object
  * 
@@ -24,20 +23,21 @@ public class PlaceholderContainerBean extends AbstractBean
 
     public PlaceholderContainerBean()
     {
-        this.placeholders = new ArrayList<>();;
+        this.placeholders = new ArrayList<>();
+        ;
     }
 
 
 
     public void addPlaceholder(PlaceholderBean placeholder)
     {
-        if(placeholders.contains(placeholder))
+        if (placeholders.contains(placeholder))
         {
             return;
         }
-        
+
         List<PlaceholderBean> newPlaceholders = new ArrayList<>(this.placeholders);
-        
+
         newPlaceholders.add(placeholder);
 
         setPlaceholders(newPlaceholders);
@@ -48,7 +48,7 @@ public class PlaceholderContainerBean extends AbstractBean
     public void removePlaceholder(PlaceholderBean placeholder)
     {
         List<PlaceholderBean> newPlaceholders = new ArrayList<>(this.placeholders);
-        
+
         newPlaceholders.remove(placeholder);
 
         setPlaceholders(newPlaceholders);
@@ -80,6 +80,28 @@ public class PlaceholderContainerBean extends AbstractBean
 
 
 
-    
+    public String removeCommandFromPlaceholder(String placeholder)
+    {
+        
+        char commandSymbol = ':';
+        int indexPlaceholderStart = 0;
+        int placeholderStartLen = 2;
+
+        String result = null;
+
+        int indexCommand = placeholder.indexOf(commandSymbol);
+
+        if(indexCommand<0)
+        {
+           return placeholder;
+        }
+        
+        result = placeholder.substring(indexPlaceholderStart, placeholderStartLen);
+        result = result + placeholder.substring(indexCommand+1);
+        
+        return result;
+
+    }
+
 
 }

@@ -38,7 +38,7 @@ public class PlaceholderManager
     {
         ArrayList<String> allFoundPlaceholders = new ArrayList<>();
 
-        SearchManager searchManager = new SearchManager(PlaceholderPattern.getPatterns());
+        SearchManager searchManager = new SearchManager(new PlaceholderPattern().getPatterns());
         
         List<String> foundedMatches = null;
 

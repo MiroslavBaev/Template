@@ -14,6 +14,7 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -103,7 +104,7 @@ public class TemplatePage extends WizardPage
         Combo combo = comboViewer.getCombo();
         combo.setVisibleItemCount(8);
         combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        
+
         // Delete combo items
         combo.addKeyListener(new KeyAdapter()
         {
@@ -115,7 +116,7 @@ public class TemplatePage extends WizardPage
                     templatesStorage.removePath(combo.getSelectionIndex());
 
                     setComboTemplates();
-                    
+
                     placeholderContainer.clear();
                 }
             }
@@ -215,7 +216,7 @@ public class TemplatePage extends WizardPage
                 setComboTemplates();
                 combo.select(indexOfSelection);
                 setSelectedProject();
-               
+
                 researchTemplatesForPlacehodlers();
             }
 
@@ -253,9 +254,9 @@ public class TemplatePage extends WizardPage
 
         setSelectedProject();
         setProjectPath();
-        
+
         researchTemplatesForPlacehodlers();
-        
+
         setPageComplete(false);
         setControl(this.container);
 
@@ -268,7 +269,7 @@ public class TemplatePage extends WizardPage
     {
         IStructuredSelection selection = comboViewer.getStructuredSelection();
 
-        
+
         if (selection == null)
         {
             return;
@@ -353,7 +354,7 @@ public class TemplatePage extends WizardPage
         {
             return;
         }
-        
+
 
         TemplateManager templateManager = new TemplateManager();
 
@@ -361,7 +362,7 @@ public class TemplatePage extends WizardPage
                 new File(selectedTemplate.getPath()), new File(projectFolderPath), placeholderContainer.getPlaceholders());
 
         templatesStorage.incrementNumberOfSelection(selectedTemplate);
-        
+
         ProjectManager.refreshAllProjectInExplorer();
     }
 
@@ -461,7 +462,38 @@ public class TemplatePage extends WizardPage
         final IObservableMap value = BeanProperties.value(PlaceholderBean.class, "value").observeDetail(knownElements);
         //
         IObservableMap[] labelMaps = { placeholder, value };
-        ILabelProvider labelProvider = new ObservableMapLabelProvider(labelMaps);
+        ILabelProvider labelProvider = new ObservableMapLabelProvider(labelMaps)
+        {
+
+            @Override
+            public String getText(Object element)
+            {
+                // TODO Auto-generated method stub
+                return super.getText(element);
+            }
+
+
+
+            @Override
+            public String getColumnText(Object element, int columnIndex)
+            {
+                if (columnIndex == 0)
+                {
+                    if (element instanceof PlaceholderBean)
+                    {
+                        String placeholder = ((PlaceholderBean) element).getPlaceholder();
+
+                        return placeholderContainer.removeCommandFromPlaceholder(placeholder);
+                    }
+
+                }
+
+                return null;
+
+            }
+
+
+        };
         this.viewer.setLabelProvider(labelProvider);
         //
         IObservableList changesTheBeanObserveList = BeanProperties.list("placeholders").observe(this.placeholderContainer);

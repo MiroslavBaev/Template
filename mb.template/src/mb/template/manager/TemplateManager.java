@@ -27,7 +27,9 @@ public class TemplateManager
 
     public TemplateManager()
     {
-        this.searchManager = new SearchManager(PlaceholderPattern.getPatterns());
+        
+        
+        this.searchManager = new SearchManager(new PlaceholderPattern().getPatterns());
     }
 
 
