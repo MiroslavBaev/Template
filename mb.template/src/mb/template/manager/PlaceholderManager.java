@@ -11,9 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
@@ -27,15 +24,10 @@ import org.eclipse.swt.widgets.Display;
  */
 public class PlaceholderManager
 {
-    private Pattern pattern;
-    private Matcher matcher;
-
 
 
     public PlaceholderManager()
     {
-        this.pattern = null;
-        this.matcher = null;
     }
 
 
@@ -44,8 +36,9 @@ public class PlaceholderManager
     {
         ArrayList<String> allFoundPlaceholders = new ArrayList<>();
 
-        this.pattern = Pattern.compile("(?i)__Prefix____TaskName__");
-        this.matcher = null;
+        SearchManager searchManager = new SearchManager();
+        List<String> foundedMatches = null;
+
         Charset charset = StandardCharsets.UTF_8;
 
         for (int i = 0; i < files.size(); i++)
@@ -54,32 +47,31 @@ public class PlaceholderManager
             {
                 return new ArrayList<>();
             }
-            
-            if (files.get(i).isDirectory()) // Search in filename for placeholders
-            {
-                String fileName = files.get(i).getName();
-                this.matcher = pattern.matcher(fileName);
 
-                while (this.matcher.find())
+            // Search in filename
+            String fileNameWithoutExtension = searchManager.removeExtensionFromFile(files.get(i).getName());
+
+            foundedMatches = searchManager.search(fileNameWithoutExtension);
+
+            for (String foundMatch : foundedMatches)
+            {
+                if (!allFoundPlaceholders.contains(foundMatch))
                 {
-                    System.out.println(this.matcher.group().toString());
-                    if (!allFoundPlaceholders.contains(this.matcher.group()))
-                    {
-                        System.out.println(this.matcher.group());
-                        allFoundPlaceholders.add(this.matcher.group());
-                    }
+                    System.out.println(foundMatch);
+                    allFoundPlaceholders.add(foundMatch);
                 }
             }
-            else if (files.get(i).isFile()) // Search in file for placeholders
+
+            // Search file in content
+            if (files.get(i).isFile())
             {
                 Path path = files.get(i).toPath();
 
-                String content = null;
-
                 try
                 {
-                    content = new String(Files.readAllBytes(path), charset);
-                    this.matcher = pattern.matcher(content);
+                    String content = new String(Files.readAllBytes(path), charset);
+
+                    foundedMatches = searchManager.search(content);
 
                 }
                 catch (IOException e)
@@ -89,18 +81,16 @@ public class PlaceholderManager
                     e.printStackTrace();
                 }
 
-                while (this.matcher.find())
+                for (String foundMatch : foundedMatches)
                 {
-                    System.out.println(this.matcher.group().toString());
-                    
-                    if (!allFoundPlaceholders.contains(this.matcher.group()))
+
+                    if (!allFoundPlaceholders.contains(foundMatch))
                     {
-                        allFoundPlaceholders.add(this.matcher.group());
+                        allFoundPlaceholders.add(foundMatch);
                     }
                 }
 
             }
-
         }
 
         return allFoundPlaceholders;

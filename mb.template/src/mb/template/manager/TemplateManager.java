@@ -6,12 +6,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
-import mb.template.placeholder.PlaceholderPattern;
 import mb.template.placeholder.PlaceholderBean;
 
 
@@ -63,15 +59,14 @@ public class TemplateManager
             }
             catch (IOException e)
             {
-                MessageDialog.openInformation
-                (Display.getCurrent().getActiveShell(),"Error" ,"There was a problem with copy the template files" );
-                
+                MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Error", "There was a problem with copy the template files");
+
                 e.printStackTrace();
             }
-           
+
         }
     }
-    
+
 
 
     /*
@@ -79,24 +74,34 @@ public class TemplateManager
      */
     public File replacePlaceholderInFileName(File file, List<PlaceholderBean> placeholders)
     {
-        String filename = file.getName().toString();
+        SearchManager searchManager = new SearchManager();
 
-        filename = removeExtensionFromFile(filename);
+        String filename = file.getName();
+
+        filename = searchManager.removeExtensionFromFile(filename);
+
+        List<String> foundedMatches = searchManager.search(filename);
 
         for (PlaceholderBean placeholder : placeholders)
         {
-            if (placeholder.getPlaceholder().equals(filename))
+            for (String foundMatch : foundedMatches)
             {
-                String oldPath = file.getPath();
+                if (placeholder.getPlaceholder().equals(foundMatch))
+                {
+                    String escapedPlaceholder = searchManager.escapeName(placeholder.getPlaceholder().toString());
 
-                String newPath = oldPath.replaceAll(
-                        PlaceholderPattern.SPECIFIC_WORD_REGEX,
-                        placeholder.getValue().toString());
+                    String oldPath = file.getPath();
 
-                return new File(newPath);
+                    String newPath = oldPath.replaceAll(
+                            escapedPlaceholder,
+                            placeholder.getValue().toString());
+
+                    return new File(newPath);
+                }
+
             }
-
         }
+
         return file;
     }
 
@@ -107,77 +112,27 @@ public class TemplateManager
      */
     public String replacePlaceholderInFileContent(String content, List<PlaceholderBean> placeholders)
     {
-        Pattern pattern = Pattern.compile(PlaceholderPattern.SPECIFIC_WORD_REGEX);
-        Matcher matcher = null;
+        SearchManager searchManager = new SearchManager();
 
-        matcher = pattern.matcher(content);
+        List<String> foundMathes = searchManager.search(content);
 
-        while (matcher.find())
+        for (PlaceholderBean placeholder : placeholders)
         {
-            for (PlaceholderBean placeholder : placeholders)
+            for (String foundMatch : foundMathes)
             {
-                if (matcher.group().equals(placeholder.getPlaceholder().toString()))
+                if (foundMatch.equals(placeholder.getPlaceholder().toString()))
                 {
-                    String escapedPlaceholder = escapePlaceholder(placeholder.getPlaceholder().toString());
+                    String escapedPlaceholder = searchManager.escapeName(placeholder.getPlaceholder().toString());
 
                     content = content.replaceAll(
                             escapedPlaceholder,
                             placeholder.getValue().toString());
                 }
             }
-
         }
+
 
         return content;
-    }
-
-
-    /*
-     * Remove extension from file name
-     */
-    private String removeExtensionFromFile(String filename)
-    {
-        String DOT = ".";
-
-        if (filename.lastIndexOf(DOT) > 0)
-        {
-            filename = filename.substring(0, filename.lastIndexOf(DOT));
-
-            return filename;
-        }
-
-        return filename;
-    }
-
-
-    /*
-     * Escape placeholder
-     */
-    private String escapePlaceholder(String placeholder)
-    {
-        char openBracket = '{';
-        char closeBracket = '}';
-        char specialSymbol = '$';
-        String escapeSymbol = "\\";
-
-        StringBuilder result = new StringBuilder();
-
-        for (int i = 0; i < placeholder.length(); i++)
-        {
-            if (placeholder.charAt(i) == openBracket
-                    || placeholder.charAt(i) == closeBracket
-                    || placeholder.charAt(i) == specialSymbol)
-            {
-                result.append(escapeSymbol + placeholder.charAt(i));
-            }
-            else
-            {
-                result.append(placeholder.charAt(i));
-            }
-
-        }
-
-        return result.toString();
     }
 
 
