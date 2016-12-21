@@ -20,13 +20,17 @@ import mb.template.placeholder.PlaceholderPattern;
  */
 public class TemplateManager
 {
-    
+
     private SearchManager searchManager;
-    
+
+
+
     public TemplateManager()
     {
         this.searchManager = new SearchManager(PlaceholderPattern.getPatterns());
     }
+
+
 
     public void copyFilesAndReplacePlaceholders(File source, File destination, List<PlaceholderBean> placeholders)
     {
@@ -86,29 +90,25 @@ public class TemplateManager
 
         filename = searchManager.removeExtensionFromFile(filename);
 
-        List<String> foundedMatches = searchManager.search(filename);
 
-        for (PlaceholderBean placeholder : placeholders)
+        if (placeholders.size() <= 0)
         {
-            for (String foundMatch : foundedMatches)
-            {
-                if (placeholder.getPlaceholder().equals(foundMatch))
-                {
-                    String escapedPlaceholder = searchManager.escapeName(placeholder.getPlaceholder().toString());
-
-                    String oldPath = file.getPath();
-
-                    String newPath = oldPath.replaceAll(
-                            escapedPlaceholder,
-                            placeholder.getValue().toString());
-
-                    return new File(newPath);
-                }
-
-            }
+            return file;
         }
 
-        return file;
+        String newPath = null;
+        
+        for (PlaceholderBean placeholder : placeholders)
+        {
+            String escapedPlaceholder = searchManager.escapeName(placeholder.getPlaceholder().toString());
+
+            String oldPath = file.getPath();
+
+            newPath = oldPath.replaceAll(
+                    escapedPlaceholder,
+                    placeholder.getValue().toString());
+        }
+        return new File(newPath);
     }
 
 
@@ -118,21 +118,15 @@ public class TemplateManager
      */
     public String replacePlaceholderInFileContent(String content, List<PlaceholderBean> placeholders)
     {
-        List<String> foundMathes = searchManager.search(content);
 
         for (PlaceholderBean placeholder : placeholders)
         {
-            for (String foundMatch : foundMathes)
-            {
-                if (foundMatch.equals(placeholder.getPlaceholder().toString()))
-                {
-                    String escapedPlaceholder = searchManager.escapeName(placeholder.getPlaceholder().toString());
+            String escapedPlaceholder = searchManager.escapeName(placeholder.getPlaceholder().toString());
 
-                    content = content.replaceAll(
-                            escapedPlaceholder,
-                            placeholder.getValue().toString());
-                }
-            }
+            content = content.replaceAll(
+                    escapedPlaceholder,
+                    placeholder.getValue().toString());
+
         }
 
 

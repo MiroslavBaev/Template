@@ -316,7 +316,7 @@ public class TemplatePage extends WizardPage
             return;
         }
 
-        PlaceholderManager placeholderFinder = new PlaceholderManager();
+        PlaceholderManager placeholderManager = new PlaceholderManager();
 
         List<String> allPlaceholders = new ArrayList<>();
 
@@ -325,7 +325,7 @@ public class TemplatePage extends WizardPage
         // Recursive searching.Input - path Output - files
         List<File> files = fileManager.searchFilesInDirectory(new File(selectedTemplate.getPath()), monitor);
 
-        allPlaceholders = placeholderFinder.search(files, monitor);
+        allPlaceholders = placeholderManager.search(files, monitor);
 
 
         for (String placeholder : allPlaceholders)

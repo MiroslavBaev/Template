@@ -171,7 +171,7 @@ public class TemplatesStorage
 
     public void incrementNumberOfSelection(Template template)
     {
-        if(template != null)
+        if(template == null)
         {
             return;
         }

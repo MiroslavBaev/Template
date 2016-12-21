@@ -29,8 +29,8 @@ public class PlaceholderPattern
 
     public static List<Pattern> getPatterns()
     {
-        setPatterns("__Prefix__", false);
-        setPatterns("__TaskName__", false);
+        setPatterns("__Prefix____TaskName__", false);
+        //setPatterns("__TaskName__", false);
         
         return patterns;
     }
