@@ -103,6 +103,7 @@ public class TemplatePage extends WizardPage
         Combo combo = comboViewer.getCombo();
         combo.setVisibleItemCount(8);
         combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        
         // Delete combo items
         combo.addKeyListener(new KeyAdapter()
         {
@@ -114,6 +115,8 @@ public class TemplatePage extends WizardPage
                     templatesStorage.removePath(combo.getSelectionIndex());
 
                     setComboTemplates();
+                    
+                    placeholderContainer.clear();
                 }
             }
 
@@ -207,14 +210,12 @@ public class TemplatePage extends WizardPage
                     return;
                 }
 
-
                 int indexOfSelection = templatesStorage.addPath(newPath);
 
                 setComboTemplates();
+                combo.select(indexOfSelection);
                 setSelectedProject();
                
-
-                combo.select(indexOfSelection);
                 researchTemplatesForPlacehodlers();
             }
 
@@ -267,6 +268,7 @@ public class TemplatePage extends WizardPage
     {
         IStructuredSelection selection = comboViewer.getStructuredSelection();
 
+        
         if (selection == null)
         {
             return;
@@ -347,17 +349,19 @@ public class TemplatePage extends WizardPage
 
     public void copyTemplateAndReplaceyPlaceholders()
     {
-
         if (selectedTemplate == null)
         {
             return;
         }
+        
 
         TemplateManager templateManager = new TemplateManager();
 
         templateManager.copyFilesAndReplacePlaceholders(
                 new File(selectedTemplate.getPath()), new File(projectFolderPath), placeholderContainer.getPlaceholders());
 
+        templatesStorage.incrementNumberOfSelection(selectedTemplate);
+        
         ProjectManager.refreshAllProjectInExplorer();
     }
 
@@ -409,8 +413,6 @@ public class TemplatePage extends WizardPage
      */
     private void setComboTemplates()
     {
-        templatesStorage = new TemplatesStorage();
-
         List<Template> templates = templatesStorage.load();
 
         comboViewer.getCombo().removeAll();

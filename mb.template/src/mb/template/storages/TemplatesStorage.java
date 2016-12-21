@@ -9,13 +9,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import org.eclipse.core.resources.ResourcesPlugin;
-
 
 
 /**
@@ -57,14 +55,13 @@ public class TemplatesStorage
         }
 
     }
-    
-   
+
 
 
     public List<Template> load()
     {
         createDirectoryAndStorageFileIfNotExist();
-        
+
         File storageFile = new File(fullPath);
 
         if (storageFile.length() <= 0)
@@ -136,7 +133,7 @@ public class TemplatesStorage
 
     /*
      * 
-     * Create template object from path or increment number of selections, if such object exist.
+     * Create template object from path, add it to template list and return its index. If object with this path exist, only return index.
      * Method return position index of object in List. This index used with Combo box.
      */
     public int addPath(String path)
@@ -152,33 +149,42 @@ public class TemplatesStorage
         {
             for (int i = 0; i < templates.size(); i++)
             {
-
                 Template currentTemplate = templates.get(i);
-                // Element with this path exist. Change it only.
+
+                // Element with this path exist. Only return its index.
                 if (currentTemplate.getPath().equals(path))
                 {
-                    currentTemplate.setNumberOfSelections(templates.get(i).getNumberOfSelections() + 1);
-
-                    this.save(templates);
-
-                    // Must be sorted again in order to take the correct index for combo selection.
-                    templates = this.load();
-
                     return templates.indexOf(currentTemplate);
                 }
             }
         }
-            // Element with this path is not exist. Create new object and add 1 for first selection.
-            Template newTemplate = new Template(path, 1);
+        // Element with this path is not exist. Create new object and add 1 for first selection.
+        Template newTemplate = new Template(path, 1);
 
-            templates.add(newTemplate);
+        templates.add(newTemplate);
 
-            this.save(templates);
-            
-            return (this.load().size() - 1);
+        this.save(templates);
+
+        return (this.load().size() - 1);
     }
 
 
+    public void incrementNumberOfSelection(Template template)
+    {
+        if(template != null)
+        {
+            return;
+        }
+        
+        List<Template> templates = this.load();
+        
+        Template currentTemplate = templates.get(templates.indexOf(template));
+
+        currentTemplate.setNumberOfSelections(currentTemplate.getNumberOfSelections() + 1);
+
+        this.save(templates);
+    }
+    
 
     private void createDirectoryAndStorageFileIfNotExist()
     {
