@@ -9,6 +9,7 @@ import java.util.List;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import mb.template.placeholder.PlaceholderBean;
+import mb.template.placeholder.PlaceholderPattern;
 
 
 /**
@@ -19,6 +20,13 @@ import mb.template.placeholder.PlaceholderBean;
  */
 public class TemplateManager
 {
+    
+    private SearchManager searchManager;
+    
+    public TemplateManager()
+    {
+        this.searchManager = new SearchManager(PlaceholderPattern.getPatterns());
+    }
 
     public void copyFilesAndReplacePlaceholders(File source, File destination, List<PlaceholderBean> placeholders)
     {
@@ -74,8 +82,6 @@ public class TemplateManager
      */
     public File replacePlaceholderInFileName(File file, List<PlaceholderBean> placeholders)
     {
-        SearchManager searchManager = new SearchManager();
-
         String filename = file.getName();
 
         filename = searchManager.removeExtensionFromFile(filename);
@@ -112,8 +118,6 @@ public class TemplateManager
      */
     public String replacePlaceholderInFileContent(String content, List<PlaceholderBean> placeholders)
     {
-        SearchManager searchManager = new SearchManager();
-
         List<String> foundMathes = searchManager.search(content);
 
         for (PlaceholderBean placeholder : placeholders)

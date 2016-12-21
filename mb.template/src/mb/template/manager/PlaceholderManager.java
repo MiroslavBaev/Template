@@ -15,6 +15,8 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 
+import mb.template.placeholder.PlaceholderPattern;
+
 
 /**
  * Placeholder finder. Search placeholders in given directory /in file name and file content/
@@ -36,7 +38,8 @@ public class PlaceholderManager
     {
         ArrayList<String> allFoundPlaceholders = new ArrayList<>();
 
-        SearchManager searchManager = new SearchManager();
+        SearchManager searchManager = new SearchManager(PlaceholderPattern.getPatterns());
+        
         List<String> foundedMatches = null;
 
         Charset charset = StandardCharsets.UTF_8;
