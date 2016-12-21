@@ -11,6 +11,7 @@ import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.ISelectionService;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 
 
@@ -133,9 +134,13 @@ public class ProjectManager
      */
     public static String getSelectedElementPath()
     {
-        ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
+        //ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
+        
+        IWorkbenchWindow window =
+                PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+            ISelection selection = window.getSelectionService().getSelection("org.eclipse.jdt.ui.PackageExplorer");
 
-        IStructuredSelection selection = (IStructuredSelection) service.getSelection();
+        //IStructuredSelection selection = (IStructuredSelection) service.getSelection();
 
         if(selection == null)
         {
