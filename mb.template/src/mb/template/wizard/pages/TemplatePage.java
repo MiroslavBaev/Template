@@ -4,9 +4,6 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JComponent;
-
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.list.IObservableList;
@@ -106,10 +103,9 @@ public class TemplatePage extends WizardPage
         Combo combo = comboViewer.getCombo();
         combo.setVisibleItemCount(8);
         combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
+        // Delete combo items
         combo.addKeyListener(new KeyAdapter()
         {
-
             @Override
             public void keyPressed(KeyEvent e)
             {
@@ -124,7 +120,6 @@ public class TemplatePage extends WizardPage
         });
         combo.addSelectionListener(new SelectionAdapter()
         {
-
             @Override
             public void widgetSelected(SelectionEvent e)
             {
@@ -212,12 +207,12 @@ public class TemplatePage extends WizardPage
                     return;
                 }
 
-                TemplatesStorage templatesStorage = new TemplatesStorage();
 
                 int indexOfSelection = templatesStorage.addPath(newPath);
 
-                setSelectedProject();
                 setComboTemplates();
+                setSelectedProject();
+               
 
                 combo.select(indexOfSelection);
                 researchTemplatesForPlacehodlers();
@@ -255,11 +250,11 @@ public class TemplatePage extends WizardPage
         setComboTemplates();
         combo.select(0);
 
-        researchTemplatesForPlacehodlers();
-        setProjectPath();
-
         setSelectedProject();
-
+        setProjectPath();
+        
+        researchTemplatesForPlacehodlers();
+        
         setPageComplete(false);
         setControl(this.container);
 

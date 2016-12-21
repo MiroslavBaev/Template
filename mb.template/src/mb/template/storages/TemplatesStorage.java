@@ -9,11 +9,13 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import org.eclipse.core.resources.ResourcesPlugin;
+
 
 
 /**
@@ -31,7 +33,7 @@ public class TemplatesStorage
     public TemplatesStorage()
     {
         settingDirectoryPath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/.settings";
-        storageFilePath = "/templatesInfo.ser";
+        storageFilePath = "/templates.ser";
         this.fullPath = settingDirectoryPath + storageFilePath;
     }
 
@@ -39,13 +41,7 @@ public class TemplatesStorage
 
     public void save(List<Template> templates)
     {
-        File settingFile = new File(settingDirectoryPath);
-
-        if (!settingFile.exists())
-        {
-            settingFile.mkdir();
-        }
-
+        createDirectoryAndStorageFileIfNotExist();
 
         try
         {
@@ -61,21 +57,26 @@ public class TemplatesStorage
         }
 
     }
-
+    
+   
 
 
     public List<Template> load()
     {
-        if (!new File(fullPath).exists())
+        createDirectoryAndStorageFileIfNotExist();
+        
+        File storageFile = new File(fullPath);
+
+        if (storageFile.length() <= 0)
         {
-            return null;
+            return new ArrayList<>();
         }
 
         Object[] templates = null;
 
         try
         {
-            FileInputStream fis = new FileInputStream(settingDirectoryPath + storageFilePath);
+            FileInputStream fis = new FileInputStream(fullPath);
             ObjectInputStream ois = new ObjectInputStream(fis);
 
             templates = (Object[]) ois.readObject();
@@ -121,7 +122,7 @@ public class TemplatesStorage
     public void removePath(int index)
     {
         List<Template> templates = this.load();
-        if(templates == null)
+        if (templates == null)
         {
             return;
         }
@@ -136,42 +137,76 @@ public class TemplatesStorage
     /*
      * 
      * Create template object from path or increment number of selections, if such object exist.
-     * Method return position index of object in List
+     * Method return position index of object in List. This index used with Combo box.
      */
     public int addPath(String path)
     {
         List<Template> templates = this.load();
-        
-        if (path == null || templates == null)
+
+        if (path == null)
         {
             return -1;
         }
 
-        for (int i = 0; i < templates.size(); i++)
+        if (templates != null)
         {
-            // Element with this path exist. Change it only.
-            Template currentTemplate = templates.get(i);
-            if (currentTemplate.getPath().equals(path))
+            for (int i = 0; i < templates.size(); i++)
             {
-                templates.get(i).setNumberOfSelections(templates.get(i).getNumberOfSelections() + 1);
 
-                this.save(templates);
+                Template currentTemplate = templates.get(i);
+                // Element with this path exist. Change it only.
+                if (currentTemplate.getPath().equals(path))
+                {
+                    currentTemplate.setNumberOfSelections(templates.get(i).getNumberOfSelections() + 1);
 
-                // Must be sorted again in order to take the correct index for combo selection.
-                templates = this.load();
+                    this.save(templates);
 
-                return templates.indexOf(currentTemplate);
+                    // Must be sorted again in order to take the correct index for combo selection.
+                    templates = this.load();
+
+                    return templates.indexOf(currentTemplate);
+                }
+            }
+        }
+            // Element with this path is not exist. Create new object and add 1 for first selection.
+            Template newTemplate = new Template(path, 1);
+
+            templates.add(newTemplate);
+
+            this.save(templates);
+            
+            return (this.load().size() - 1);
+    }
+
+
+
+    private void createDirectoryAndStorageFileIfNotExist()
+    {
+        // Create .setting folder if not exist
+        File settingDirectory = new File(settingDirectoryPath);
+
+        if (!settingDirectory.exists())
+        {
+            settingDirectory.mkdir();
+        }
+
+
+        // Create storage file
+        File storageFile = new File(fullPath);
+
+        if (!storageFile.exists())
+        {
+            try
+            {
+                storageFile.createNewFile();
+            }
+            catch (IOException e)
+            {
+                // TODO Can't create storage file
+                e.printStackTrace();
             }
         }
 
-        // Element with this path is not exist. Create new object and add 1 for first selection.
-        Template newTemplate = new Template(path, 1);
-
-        templates.add(newTemplate);
-
-        this.save(templates);
-
-        return (this.load().size() - 1);
     }
 
 }
