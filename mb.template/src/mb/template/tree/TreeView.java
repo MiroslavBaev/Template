@@ -5,7 +5,6 @@ package mb.template.tree;
 
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreeViewer;
-import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
@@ -34,7 +33,7 @@ public class TreeView extends TreeViewer
         super(parent,SWT.BORDER);
         setContentProvider(new ContentProvider());
         setLabelProvider(new LabelProvider());
-        setFilters(new ViewerFilter[] { new ProjectsFilter()});
+        addFilter(new ProjectsFilter());
         setComparator(new FileComparator());
     }
 

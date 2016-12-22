@@ -70,43 +70,6 @@ public class PlaceholderBean extends AbstractBean
     }
 
 
-
-    public String getPlaceholderWithoutCommand()
-    {
-        String result = null;
-
-        int indexCommand = placeholder.indexOf(CommandConstants.COMMAND_SYMBOL);
-
-        if (indexCommand < 0)
-        {
-            return placeholder;
-        }
-
-        result = placeholder.substring(CommandConstants.INDEX_PLACEHOLDER_START, CommandConstants.PLACEHOLDER_LENGHT);
-        result = result + placeholder.substring(indexCommand + 1);
-
-        return result;
-    }
-
-
-
-    public String getCommand()
-    {
-        int indexCommandSymbol = placeholder.indexOf(CommandConstants.COMMAND_SYMBOL);
-
-        if (placeholder == null || indexCommandSymbol < 0)
-        {
-            return null;
-        }
-
-        return placeholder.substring(
-                CommandConstants.INDEX_PLACEHOLDER_START + CommandConstants.PLACEHOLDER_LENGHT,
-                placeholder.indexOf(CommandConstants.COMMAND_SYMBOL));
-
-    }
-
-
-
     public void fireSetValueChange()
     {
         this.listener.isChange();
@@ -124,6 +87,41 @@ public class PlaceholderBean extends AbstractBean
     public void removeChangeValueListener()
     {
         this.listener = null;
+    }
+
+    
+    public String getPlaceholderWithoutCommand()
+    {
+        String result = null;
+
+        int indexCommand = placeholder.indexOf(CommandConstants.COMMAND_SYMBOL);
+
+        if (indexCommand < 0)
+        {
+            return placeholder;
+        }
+
+        result = placeholder.substring(CommandConstants.INDEX_PLACEHOLDER_START, CommandConstants.PLACEHOLDER_START_LENGHT);
+        result = result + placeholder.substring(indexCommand + 1);
+
+        return result;
+    }
+
+
+
+    public String getCommand()
+    {
+        int indexCommandSymbol = placeholder.indexOf(CommandConstants.COMMAND_SYMBOL);
+
+        if (placeholder == null || indexCommandSymbol < 0)
+        {
+            return null;
+        }
+
+        return placeholder.substring(
+                CommandConstants.INDEX_PLACEHOLDER_START + CommandConstants.PLACEHOLDER_START_LENGHT,
+                placeholder.indexOf(CommandConstants.COMMAND_SYMBOL));
+
     }
 
 

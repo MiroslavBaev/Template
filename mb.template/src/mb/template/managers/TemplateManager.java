@@ -22,7 +22,7 @@ import mb.template.placeholder.commands.ICommand;
  */
 public class TemplateManager
 {
-    private SearchManager searchManager;
+    private PatternSearchManager searchManager;
 
     private Commands allCommands;
 
@@ -30,7 +30,7 @@ public class TemplateManager
 
     public TemplateManager()
     {
-        this.searchManager = new SearchManager(new PlaceholderPattern().getPatterns());
+        this.searchManager = new PatternSearchManager(new PlaceholderPattern().getPatterns());
         this.allCommands = new Commands();
     }
 
@@ -86,7 +86,9 @@ public class TemplateManager
 
 
     /*
+     * 
      * Replace placeholders in name for a given file
+     * 
      */
     public File replacePlaceholderInFileName(File file, List<PlaceholderBean> placeholders)
     {
@@ -121,7 +123,9 @@ public class TemplateManager
 
 
     /*
+     * 
      * Replace placeholders in content for a given file
+     * 
      */
     public String replacePlaceholderInFileContent(String content, List<PlaceholderBean> placeholders)
     {

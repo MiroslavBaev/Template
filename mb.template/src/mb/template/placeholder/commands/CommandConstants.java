@@ -13,5 +13,5 @@ public class CommandConstants
     
     public final static int INDEX_PLACEHOLDER_START = 0;
     
-    public final static int PLACEHOLDER_LENGHT = 2;
+    public final static int PLACEHOLDER_START_LENGHT = 2;
 }

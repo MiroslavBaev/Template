@@ -19,7 +19,7 @@ public class ProjectsFilter extends ViewerFilter
     @Override
     public boolean select(Viewer viewer, Object parentElement, Object element)
     {
-        if (element.toString().contains(".metadata"))
+        if (element.toString().contains(".metadata") || element.toString().contains(".settings"))
         {
             return false;
         }

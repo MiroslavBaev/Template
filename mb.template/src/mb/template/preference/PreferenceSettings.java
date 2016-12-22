@@ -36,8 +36,6 @@ public class PreferenceSettings
         }
         catch (BackingStoreException e)
         {
-            
-            //TODO  "Error occured while saving the preferences"
             e.printStackTrace();
         }
     }
@@ -66,7 +64,6 @@ public class PreferenceSettings
         }
         catch (BackingStoreException e)
         {
-            //TODO "Error occured while getting the preferences"
             e.printStackTrace();
         }
 

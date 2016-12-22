@@ -1,7 +1,5 @@
 package mb.template.managers;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
@@ -23,30 +21,18 @@ import org.eclipse.ui.PlatformUI;
  */
 public class ProjectManager
 {
-    /*
-     * 
-     * Get workspace path 
-     * 
-     */
-    public String getWorkspacePath()
-    {
-        return ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/";
-    }
-    
-    
    
-    
-    
-    
+   
     
     /*
      * 
      * Refresh selected project
-     * 
+     * s
      */
-    public static void refreshCurrentProjectInExplorer()
+    public static void refreshProjectInExplorer()
     {
-        IProject project = getCurrentSelectedProject();
+        IProject project = getSelectedProject();
+        
         try
         {
             project.refreshLocal(IResource.DEPTH_INFINITE, null);
@@ -85,14 +71,14 @@ public class ProjectManager
         }
     }
     
-    public ArrayList<IProject> getAllProjects()
-    {
-     
-        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
-        IProject[] projects = workspaceRoot.getProjects();
-        
-        return new ArrayList<IProject>(Arrays.asList(projects));
-    }
+//    public ArrayList<IProject> getAllProjects()
+//    {
+//     
+//        IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+//        IProject[] projects = workspaceRoot.getProjects();
+//        
+//        return new ArrayList<IProject>(Arrays.asList(projects));
+//    }
 
 
     /*
@@ -100,7 +86,7 @@ public class ProjectManager
      * Get selected project
      * 
      */
-    public static IProject getCurrentSelectedProject()
+    public static IProject getSelectedProject()
     {
         IProject project = null;
         ISelectionService selectionService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
@@ -134,22 +120,16 @@ public class ProjectManager
      */
     public static String getSelectedElementPath()
     {
-        //ISelectionService service = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
-        
         IWorkbenchWindow window =
                 PlatformUI.getWorkbench().getActiveWorkbenchWindow();
             ISelection selection = window.getSelectionService().getSelection("org.eclipse.jdt.ui.PackageExplorer");
-
-        //IStructuredSelection selection = (IStructuredSelection) service.getSelection();
 
         if(selection == null)
         {
             return null;
         }
         
-        
         IStructuredSelection iStructuredSelection = (IStructuredSelection) selection;
-
         Object element = iStructuredSelection.getFirstElement();
 
         

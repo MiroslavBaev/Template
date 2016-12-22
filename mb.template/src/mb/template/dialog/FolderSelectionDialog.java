@@ -54,7 +54,7 @@ public class FolderSelectionDialog extends Dialog
         Composite container = (Composite) super.createDialogArea(parent);
 
         Label lblNewLabel = new Label(container, SWT.NONE);
-        lblNewLabel.setText("Choose a source folder:");
+        lblNewLabel.setText("Choose a export folder:");
 
         treeView = new TreeView(container);
         Tree tree = treeView.getTree();
@@ -74,7 +74,6 @@ public class FolderSelectionDialog extends Dialog
 
             treeView.setSelection(new StructuredSelection(file));
         }
-
 
         tree.addSelectionListener(new SelectionAdapter()
         {
@@ -106,7 +105,6 @@ public class FolderSelectionDialog extends Dialog
         }
 
         selectedProjectFolderPath = newSelectionProjectFolderPath;
-        
     }
 
 
@@ -133,7 +131,6 @@ public class FolderSelectionDialog extends Dialog
             listener.isCLickedOk(path);
         }
 
-
     }
 
 
@@ -155,11 +152,9 @@ public class FolderSelectionDialog extends Dialog
     @Override
     protected void configureShell(Shell newShell)
     {
-
         super.configureShell(newShell);
 
         newShell.setText("Folder Selection");
-
     }
 
 

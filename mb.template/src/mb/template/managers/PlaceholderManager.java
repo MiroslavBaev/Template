@@ -26,20 +26,24 @@ import mb.template.placeholder.PlaceholderPattern;
  */
 public class PlaceholderManager
 {
+    private ArrayList<String> allFoundPlaceholders;
+    private PatternSearchManager searchManager;
 
-
+    
     public PlaceholderManager()
     {
+        this.allFoundPlaceholders = new ArrayList<>();
+        this.searchManager = new PatternSearchManager(new PlaceholderPattern().getPatterns());
     }
 
-
-
+    
+    /*
+     * 
+     * Search placeholder in files names and files contents 
+     * 
+     */
     public ArrayList<String> searchPlaceholders(List<File> files, IProgressMonitor monitor)
     {
-        ArrayList<String> allFoundPlaceholders = new ArrayList<>();
-
-        SearchManager searchManager = new SearchManager(new PlaceholderPattern().getPatterns());
-        
         List<String> foundedMatches = null;
 
         Charset charset = StandardCharsets.UTF_8;
@@ -98,5 +102,5 @@ public class PlaceholderManager
 
         return allFoundPlaceholders;
     }
-
+    
 }

@@ -38,13 +38,14 @@ import mb.template.managers.ProjectManager;
 import mb.template.managers.TemplateManager;
 import mb.template.placeholder.PlaceholderBean;
 import mb.template.placeholder.PlaceholderContainerBean;
-import mb.template.storages.Template;
-import mb.template.storages.TemplatesStorage;
+import mb.template.storages.TemplatePath;
+import mb.template.storages.TemplatePathStorage;
 import mb.template.validator.Validator;
 import mb.template.wizard.table.editor.ColumnEditingSupport;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -60,18 +61,18 @@ import org.eclipse.jface.viewers.ComboViewer;
  */
 public class TemplatePage extends WizardPage
 {
-    // private final static String TEMPLATE_PATH_PREFERENCE = "templatePath";
+    private static final String HELP_CONTENT_ID = ".wizardHelp";
 
     private Composite container;
     private TableViewer viewer;
     private Text txtProjectFolder;
-    private ComboViewer comboViewer;
+    private ComboViewer comboTemplatePaths;
 
     private String projectFolderPath;
     private PlaceholderContainerBean placeholderContainer;
 
-    private TemplatesStorage templatesStorage;
-    private Template selectedTemplate;
+    private TemplatePathStorage templatesStorage;
+    private TemplatePath selectedTemplate;
 
     private boolean projectFolderIsSelected;
 
@@ -86,7 +87,7 @@ public class TemplatePage extends WizardPage
         this.placeholderContainer = new PlaceholderContainerBean();
         this.projectFolderPath = ProjectManager.getSelectedElementPath();
 
-        this.templatesStorage = new TemplatesStorage();
+        this.templatesStorage = new TemplatePathStorage();
         this.selectedTemplate = null;
         this.projectFolderIsSelected = false;
     }
@@ -103,8 +104,8 @@ public class TemplatePage extends WizardPage
         lblTemplateSourceFolder.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         lblTemplateSourceFolder.setText("Template source folder");
         //
-        comboViewer = new ComboViewer(container, SWT.READ_ONLY | SWT.V_SCROLL);
-        Combo combo = comboViewer.getCombo();
+        comboTemplatePaths = new ComboViewer(container, SWT.READ_ONLY | SWT.V_SCROLL);
+        Combo combo = comboTemplatePaths.getCombo();
         combo.setVisibleItemCount(8);
         combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
 
@@ -118,7 +119,7 @@ public class TemplatePage extends WizardPage
                 {
                     templatesStorage.removePath(combo.getSelectionIndex());
 
-                    setComboTemplates();
+                    setComboTemplatePaths();
 
                     placeholderContainer.clear();
                 }
@@ -137,18 +138,16 @@ public class TemplatePage extends WizardPage
 
         });
         //
-        comboViewer.setContentProvider(ArrayContentProvider.getInstance());
-        comboViewer.setLabelProvider(new LabelProvider()
+        comboTemplatePaths.setContentProvider(ArrayContentProvider.getInstance());
+        comboTemplatePaths.setLabelProvider(new LabelProvider()
         {
             @Override
             public String getText(Object element)
             {
-                if (element instanceof Template)
+                if (element instanceof TemplatePath)
                 {
-                    Template template = (Template) element;
-                    FileManager fileManager = new FileManager();
-
-                    return fileManager.getParentFolderNameFromFullPath(template.getPath());
+                    TemplatePath template = (TemplatePath) element;
+                    return template.getPath();
                 }
                 return super.getText(element);
             }
@@ -161,7 +160,7 @@ public class TemplatePage extends WizardPage
         lblSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
         //
         Label lblProjectFolder = new Label(container, SWT.NONE);
-        lblProjectFolder.setText("Project source folder");
+        lblProjectFolder.setText("Export project folder");
         //
         txtProjectFolder = new Text(container, SWT.BORDER);
         txtProjectFolder.setEditable(false);
@@ -173,7 +172,7 @@ public class TemplatePage extends WizardPage
             {
                 setPageComplete(true);
                 setErrorMessage(null);
-                
+
                 projectFolderIsSelected = true;
             }
         });
@@ -228,7 +227,7 @@ public class TemplatePage extends WizardPage
 
                 int indexOfSelection = templatesStorage.addPath(newPath);
 
-                setComboTemplates();
+                setComboTemplatePaths();
                 combo.select(indexOfSelection);
                 setSelectedProject();
 
@@ -264,7 +263,7 @@ public class TemplatePage extends WizardPage
 
         });
 
-        setComboTemplates();
+        setComboTemplatePaths();
         combo.select(0);
 
         setSelectedProject();
@@ -282,15 +281,14 @@ public class TemplatePage extends WizardPage
 
     private void setSelectedProject()
     {
-        IStructuredSelection selection = comboViewer.getStructuredSelection();
-
+        IStructuredSelection selection = comboTemplatePaths.getStructuredSelection();
 
         if (selection == null)
         {
             return;
         }
 
-        Template template = (Template) selection.getFirstElement();
+        TemplatePath template = (TemplatePath) selection.getFirstElement();
 
         selectedTemplate = template;
     }
@@ -420,14 +418,14 @@ public class TemplatePage extends WizardPage
         if (projectFolderIsSelected)
         {
             setPageComplete(true);
-            
+
             setErrorMessage(null);
         }
-        else 
+        else
         {
-            setErrorMessage("Project foldert should be selected!");    
+            setErrorMessage("Project foldert should be selected!");
         }
-        
+
         return true;
     }
 
@@ -438,15 +436,15 @@ public class TemplatePage extends WizardPage
      * Set template path in text box
      * 
      */
-    private void setComboTemplates()
+    private void setComboTemplatePaths()
     {
-        List<Template> templates = templatesStorage.load();
+        List<TemplatePath> templates = templatesStorage.loadPaths();
 
-        comboViewer.getCombo().removeAll();
+        comboTemplatePaths.getCombo().removeAll();
 
         if (templates != null)
         {
-            comboViewer.setInput(templates);
+            comboTemplatePaths.setInput(templates);
         }
     }
 
@@ -463,12 +461,20 @@ public class TemplatePage extends WizardPage
         {
             FileManager fileManager = new FileManager();
 
-            String shortProjectPath = fileManager.getParentFolderNameFromFullPath(projectFolderPath);
+            String shortProjectPath = fileManager.getLastDirectoryChildNameFromPath(projectFolderPath);
 
             projectFolderIsSelected = true;
 
             txtProjectFolder.setText(shortProjectPath);
         }
+    }
+
+
+
+    public void performHelp()
+    {
+        PlatformUI.getWorkbench().getHelpSystem()
+                .displayHelp(HELP_CONTENT_ID);
     }
 
 
