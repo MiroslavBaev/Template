@@ -22,6 +22,8 @@ import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
@@ -66,11 +68,12 @@ public class TemplatePage extends WizardPage
     private ComboViewer comboViewer;
 
     private String projectFolderPath;
-
     private PlaceholderContainerBean placeholderContainer;
 
     private TemplatesStorage templatesStorage;
     private Template selectedTemplate;
+
+    private boolean projectFolderIsSelected;
 
 
 
@@ -85,6 +88,7 @@ public class TemplatePage extends WizardPage
 
         this.templatesStorage = new TemplatesStorage();
         this.selectedTemplate = null;
+        this.projectFolderIsSelected = false;
     }
 
 
@@ -162,6 +166,18 @@ public class TemplatePage extends WizardPage
         txtProjectFolder = new Text(container, SWT.BORDER);
         txtProjectFolder.setEditable(false);
         txtProjectFolder.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        txtProjectFolder.addModifyListener(new ModifyListener()
+        {
+            @Override
+            public void modifyText(ModifyEvent e)
+            {
+                setPageComplete(true);
+                setErrorMessage(null);
+                
+                projectFolderIsSelected = true;
+            }
+        });
+
         //
         Button btnProjectFolder = new Button(container, SWT.NONE);
         btnProjectFolder.setText("Browse..");
@@ -349,8 +365,8 @@ public class TemplatePage extends WizardPage
 
     /*
      * 
-     *  Read templates from directory, replace placeholders and copy to selected project directory.
-     *  This method called when Finish button is clicked.
+     * Read templates from directory, replace placeholders and copy to selected project directory.
+     * This method called when Finish button is clicked.
      * 
      */
     public void copyTemplateAndReplaceyPlaceholders()
@@ -377,7 +393,7 @@ public class TemplatePage extends WizardPage
      */
     private boolean Validate()
     {
-        
+
         for (PlaceholderBean placeholder : this.placeholderContainer.getPlaceholders())
         {
             // Validate - empty field
@@ -399,13 +415,19 @@ public class TemplatePage extends WizardPage
 
                 return false;
             }
-
         }
 
-        setPageComplete(true);
-
-        setErrorMessage(null);
-
+        if (projectFolderIsSelected)
+        {
+            setPageComplete(true);
+            
+            setErrorMessage(null);
+        }
+        else 
+        {
+            setErrorMessage("Project foldert should be selected!");    
+        }
+        
         return true;
     }
 
@@ -443,6 +465,8 @@ public class TemplatePage extends WizardPage
 
             String shortProjectPath = fileManager.getParentFolderNameFromFullPath(projectFolderPath);
 
+            projectFolderIsSelected = true;
+
             txtProjectFolder.setText(shortProjectPath);
         }
     }
@@ -473,7 +497,7 @@ public class TemplatePage extends WizardPage
             {
                 if (columnIndex == 0)
                 {
-                    return((PlaceholderBean) element).getPlaceholderWithoutCommand();
+                    return ((PlaceholderBean) element).getPlaceholderWithoutCommand();
                 }
                 else
                 {
