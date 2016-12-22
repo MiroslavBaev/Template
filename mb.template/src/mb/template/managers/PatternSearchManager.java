@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  * @author mbaev
  *
  */
-public class SearchManager
+public class PatternSearchManager
 {
     private List<String> foundMatches;
     private List<Pattern> patterns;
@@ -25,7 +25,7 @@ public class SearchManager
 
 
 
-    public SearchManager(List<Pattern> patterns)
+    public PatternSearchManager(List<Pattern> patterns)
     {
         this.foundMatches = new ArrayList<>();
         this.patterns = patterns;

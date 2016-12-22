@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<contexts>
+      <context  id="wizardHelp">
+        <description>Gets help about this wizard</description>
+        <topic href="html/about.html"  label="My wizard help"/> 
+  </context>
+</contexts>

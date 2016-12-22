@@ -20,7 +20,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
  * @author mbaev
  *
  */
-public class TemplatesStorage
+public class TemplatePathStorage
 {
     String settingDirectoryPath;
     String storageFilePath;
@@ -28,16 +28,16 @@ public class TemplatesStorage
 
 
 
-    public TemplatesStorage()
+    public TemplatePathStorage()
     {
-        settingDirectoryPath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/.settings";
-        storageFilePath = "/templates.ser";
+        this.settingDirectoryPath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/.settings";
+        this.storageFilePath = "/templates.ser";
         this.fullPath = settingDirectoryPath + storageFilePath;
     }
 
 
 
-    public void save(List<Template> templates)
+    public void savePaths(List<TemplatePath> templates)
     {
         createDirectoryAndStorageFileIfNotExist();
 
@@ -58,11 +58,11 @@ public class TemplatesStorage
 
 
 
-    public List<Template> load()
+    public List<TemplatePath> loadPaths()
     {
         createDirectoryAndStorageFileIfNotExist();
 
-        File storageFile = new File(fullPath);
+        File storageFile = new File(this.fullPath);
 
         if (storageFile.length() <= 0)
         {
@@ -73,7 +73,7 @@ public class TemplatesStorage
 
         try
         {
-            FileInputStream fis = new FileInputStream(fullPath);
+            FileInputStream fis = new FileInputStream(this.fullPath);
             ObjectInputStream ois = new ObjectInputStream(fis);
 
             templates = (Object[]) ois.readObject();
@@ -85,17 +85,17 @@ public class TemplatesStorage
             e.printStackTrace();
         }
 
-        Template[] templateArray = Arrays.copyOf(templates, templates.length, Template[].class);
+        TemplatePath[] templateArray = Arrays.copyOf(templates, templates.length, TemplatePath[].class);
 
-        List<Template> fixedSizeList = Arrays.asList(templateArray);
+        List<TemplatePath> fixedSizeList = Arrays.asList(templateArray);
 
-        List<Template> sorterdList = new ArrayList<>(fixedSizeList);
+        List<TemplatePath> sorterdList = new ArrayList<>(fixedSizeList);
 
-        sorterdList.sort(new Comparator<Template>()
+        sorterdList.sort(new Comparator<TemplatePath>()
         {
 
             @Override
-            public int compare(Template templateOne, Template templateTwo)
+            public int compare(TemplatePath templateOne, TemplatePath templateTwo)
             {
                 if (templateOne.getNumberOfSelections() > templateTwo.getNumberOfSelections())
                 {
@@ -111,14 +111,13 @@ public class TemplatesStorage
         });
 
         return sorterdList;
-
     }
 
 
 
     public void removePath(int index)
     {
-        List<Template> templates = this.load();
+        List<TemplatePath> templates = this.loadPaths();
         if (templates == null)
         {
             return;
@@ -126,7 +125,7 @@ public class TemplatesStorage
 
         templates.remove(index);
 
-        this.save(templates);
+        this.savePaths(templates);
     }
 
 
@@ -138,7 +137,7 @@ public class TemplatesStorage
      */
     public int addPath(String path)
     {
-        List<Template> templates = this.load();
+        List<TemplatePath> templates = this.loadPaths();
 
         if (path == null)
         {
@@ -149,7 +148,7 @@ public class TemplatesStorage
         {
             for (int i = 0; i < templates.size(); i++)
             {
-                Template currentTemplate = templates.get(i);
+                TemplatePath currentTemplate = templates.get(i);
 
                 // Element with this path exist. Only return its index.
                 if (currentTemplate.getPath().equals(path))
@@ -159,30 +158,30 @@ public class TemplatesStorage
             }
         }
         // Element with this path is not exist. Create new object and add 1 for first selection.
-        Template newTemplate = new Template(path, 1);
+        TemplatePath newTemplate = new TemplatePath(path, 1);
 
         templates.add(newTemplate);
 
-        this.save(templates);
+        this.savePaths(templates);
 
-        return (this.load().size() - 1);
+        return (this.loadPaths().size() - 1);
     }
 
 
-    public void incrementNumberOfSelection(Template template)
+    public void incrementNumberOfSelection(TemplatePath template)
     {
         if(template == null)
         {
             return;
         }
         
-        List<Template> templates = this.load();
+        List<TemplatePath> templates = this.loadPaths();
         
-        Template currentTemplate = templates.get(templates.indexOf(template));
+        TemplatePath currentTemplate = templates.get(templates.indexOf(template));
 
         currentTemplate.setNumberOfSelections(currentTemplate.getNumberOfSelections() + 1);
 
-        this.save(templates);
+        this.savePaths(templates);
     }
     
 

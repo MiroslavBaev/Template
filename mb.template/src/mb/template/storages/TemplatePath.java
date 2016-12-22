@@ -10,7 +10,7 @@ import java.io.Serializable;
  * @author mbaev
  *
  */
-public class Template implements Serializable
+public class TemplatePath implements Serializable
 {
     /**
      * 
@@ -21,7 +21,7 @@ public class Template implements Serializable
     private int numberOfSelections;
 
 
-    public Template(String path, int numberOfSelections)
+    public TemplatePath(String path, int numberOfSelections)
     {
         this.path = path;
         
@@ -54,7 +54,7 @@ public class Template implements Serializable
             return false;
         if (getClass() != obj.getClass())
             return false;
-        Template other = (Template) obj;
+        TemplatePath other = (TemplatePath) obj;
         if (path == null)
         {
             if (other.path != null)
