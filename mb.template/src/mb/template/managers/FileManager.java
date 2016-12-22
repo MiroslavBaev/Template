@@ -1,4 +1,4 @@
-package mb.template.manager;
+package mb.template.managers;
 
 import java.io.File;
 import java.util.ArrayList;

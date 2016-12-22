@@ -14,7 +14,6 @@ import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ILabelProvider;
-import org.eclipse.jface.viewers.ILabelProviderListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
@@ -31,10 +30,10 @@ import org.eclipse.swt.widgets.DirectoryDialog;
 import mb.template.dialog.FolderSelectionDialog;
 import mb.template.listeners.IChangeValueListener;
 import mb.template.listeners.IClickListener;
-import mb.template.manager.FileManager;
-import mb.template.manager.PlaceholderManager;
-import mb.template.manager.ProjectManager;
-import mb.template.manager.TemplateManager;
+import mb.template.managers.FileManager;
+import mb.template.managers.PlaceholderManager;
+import mb.template.managers.ProjectManager;
+import mb.template.managers.TemplateManager;
 import mb.template.placeholder.PlaceholderBean;
 import mb.template.placeholder.PlaceholderContainerBean;
 import mb.template.storages.Template;
@@ -326,7 +325,7 @@ public class TemplatePage extends WizardPage
         // Recursive searching.Input - path Output - files
         List<File> files = fileManager.searchFilesInDirectory(new File(selectedTemplate.getPath()), monitor);
 
-        allPlaceholders = placeholderManager.search(files, monitor);
+        allPlaceholders = placeholderManager.searchPlaceholders(files, monitor);
 
 
         for (String placeholder : allPlaceholders)
@@ -348,13 +347,18 @@ public class TemplatePage extends WizardPage
 
 
 
+    /*
+     * 
+     *  Read templates from directory, replace placeholders and copy to selected project directory.
+     *  This method called when Finish button is clicked.
+     * 
+     */
     public void copyTemplateAndReplaceyPlaceholders()
     {
         if (selectedTemplate == null)
         {
             return;
         }
-
 
         TemplateManager templateManager = new TemplateManager();
 
@@ -373,7 +377,7 @@ public class TemplatePage extends WizardPage
      */
     private boolean Validate()
     {
-
+        
         for (PlaceholderBean placeholder : this.placeholderContainer.getPlaceholders())
         {
             // Validate - empty field
@@ -464,27 +468,12 @@ public class TemplatePage extends WizardPage
         IObservableMap[] labelMaps = { placeholder, value };
         ILabelProvider labelProvider = new ObservableMapLabelProvider(labelMaps)
         {
-
-            @Override
-            public String getText(Object element)
-            {
-                // TODO Auto-generated method stub
-                return super.getText(element);
-            }
-
-
-
             @Override
             public String getColumnText(Object element, int columnIndex)
             {
-
-
                 if (columnIndex == 0)
                 {
-                    String placeholder = ((PlaceholderBean) element).getPlaceholder();
-
-                    return placeholderContainer.removeCommandFromPlaceholder(placeholder);
-
+                    return((PlaceholderBean) element).getPlaceholderWithoutCommand();
                 }
                 else
                 {

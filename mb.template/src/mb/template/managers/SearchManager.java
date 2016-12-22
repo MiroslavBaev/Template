@@ -1,7 +1,7 @@
 /**
  * 
  */
-package mb.template.manager;
+package mb.template.managers;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +66,7 @@ public class SearchManager
         char openBracket = '{';
         char closeBracket = '}';
         char specialSymbol = '$';
+        char commandSymbol = ':';
         String escapeSymbol = "\\";
 
         StringBuilder result = new StringBuilder();
@@ -74,7 +75,8 @@ public class SearchManager
         {
             if (placeholder.charAt(i) == openBracket
                     || placeholder.charAt(i) == closeBracket
-                    || placeholder.charAt(i) == specialSymbol)
+                    || placeholder.charAt(i) == specialSymbol
+                    || placeholder.charAt(i) == commandSymbol)
             {
                 result.append(escapeSymbol + placeholder.charAt(i));
             }

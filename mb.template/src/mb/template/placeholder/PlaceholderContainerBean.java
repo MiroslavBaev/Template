@@ -79,29 +79,4 @@ public class PlaceholderContainerBean extends AbstractBean
     }
 
 
-
-    public String removeCommandFromPlaceholder(String placeholder)
-    {
-        
-        char commandSymbol = ':';
-        int indexPlaceholderStart = 0;
-        int placeholderStartLen = 2;
-
-        String result = null;
-
-        int indexCommand = placeholder.indexOf(commandSymbol);
-
-        if(indexCommand<0)
-        {
-           return placeholder;
-        }
-        
-        result = placeholder.substring(indexPlaceholderStart, placeholderStartLen);
-        result = result + placeholder.substring(indexCommand+1);
-        
-        return result;
-
-    }
-
-
 }

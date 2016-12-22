@@ -4,6 +4,7 @@
 package mb.template.placeholder;
 
 import mb.template.listeners.IChangeValueListener;
+import mb.template.placeholder.commands.CommandConstants;
 import mb.template.util.AbstractBean;
 
 
@@ -26,6 +27,7 @@ public class PlaceholderBean extends AbstractBean
     {
         this(placeholder);
         this.value = value;
+        this.placeholder = null;
     }
 
 
@@ -69,6 +71,42 @@ public class PlaceholderBean extends AbstractBean
 
 
 
+    public String getPlaceholderWithoutCommand()
+    {
+        String result = null;
+
+        int indexCommand = placeholder.indexOf(CommandConstants.COMMAND_SYMBOL);
+
+        if (indexCommand < 0)
+        {
+            return placeholder;
+        }
+
+        result = placeholder.substring(CommandConstants.INDEX_PLACEHOLDER_START, CommandConstants.PLACEHOLDER_LENGHT);
+        result = result + placeholder.substring(indexCommand + 1);
+
+        return result;
+    }
+
+
+
+    public String getCommand()
+    {
+        int indexCommandSymbol = placeholder.indexOf(CommandConstants.COMMAND_SYMBOL);
+
+        if (placeholder == null || indexCommandSymbol < 0)
+        {
+            return null;
+        }
+
+        return placeholder.substring(
+                CommandConstants.INDEX_PLACEHOLDER_START + CommandConstants.PLACEHOLDER_LENGHT,
+                placeholder.indexOf(CommandConstants.COMMAND_SYMBOL));
+
+    }
+
+
+
     public void fireSetValueChange()
     {
         this.listener.isChange();
@@ -95,7 +133,7 @@ public class PlaceholderBean extends AbstractBean
     {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((placeholder == null) ? 0 : placeholder.hashCode());
+        result = prime * result + ((getPlaceholderWithoutCommand() == null) ? 0 : getPlaceholderWithoutCommand().hashCode());
         return result;
     }
 
@@ -111,12 +149,12 @@ public class PlaceholderBean extends AbstractBean
         if (getClass() != obj.getClass())
             return false;
         PlaceholderBean other = (PlaceholderBean) obj;
-        if (placeholder == null)
+        if (getPlaceholderWithoutCommand() == null)
         {
-            if (other.placeholder != null)
+            if (other.getPlaceholderWithoutCommand() != null)
                 return false;
         }
-        else if (!placeholder.equals(other.placeholder))
+        else if (!getPlaceholderWithoutCommand().equals(other.getPlaceholderWithoutCommand()))
             return false;
         return true;
     }

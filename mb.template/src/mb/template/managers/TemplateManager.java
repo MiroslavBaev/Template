@@ -1,4 +1,4 @@
-package mb.template.manager;
+package mb.template.managers;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,6 +10,8 @@ import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
 import mb.template.placeholder.PlaceholderBean;
 import mb.template.placeholder.PlaceholderPattern;
+import mb.template.placeholder.commands.Commands;
+import mb.template.placeholder.commands.ICommand;
 
 
 /**
@@ -20,16 +22,16 @@ import mb.template.placeholder.PlaceholderPattern;
  */
 public class TemplateManager
 {
-
     private SearchManager searchManager;
+
+    private Commands allCommands;
 
 
 
     public TemplateManager()
     {
-        
-        
         this.searchManager = new SearchManager(new PlaceholderPattern().getPatterns());
+        this.allCommands = new Commands();
     }
 
 
@@ -99,16 +101,19 @@ public class TemplateManager
         }
 
         String newPath = null;
-        
+        String oldPath = file.getPath();
+
         for (PlaceholderBean placeholder : placeholders)
         {
-            String escapedPlaceholder = searchManager.escapeName(placeholder.getPlaceholder().toString());
+            String modifiedValue = processCommand(placeholder);
 
-            String oldPath = file.getPath();
+            String escapedPlaceholder = searchManager.escapeName(placeholder.getPlaceholder().toString());
 
             newPath = oldPath.replaceAll(
                     escapedPlaceholder,
-                    placeholder.getValue().toString());
+                    modifiedValue);
+            
+            oldPath = newPath;
         }
         return new File(newPath);
     }
@@ -120,19 +125,40 @@ public class TemplateManager
      */
     public String replacePlaceholderInFileContent(String content, List<PlaceholderBean> placeholders)
     {
-
         for (PlaceholderBean placeholder : placeholders)
         {
-            String escapedPlaceholder = searchManager.escapeName(placeholder.getPlaceholder().toString());
+            String modifiedValue = processCommand(placeholder);
+            
+            String escapedPlaceholder = searchManager.escapeName(placeholder.getPlaceholder());
 
             content = content.replaceAll(
                     escapedPlaceholder,
-                    placeholder.getValue().toString());
-
+                    modifiedValue);
         }
 
-
         return content;
+    }
+
+
+
+    /*
+     * 
+     * Get command from placeholder and modify placeholder value;
+     * 
+     */
+    private String processCommand(PlaceholderBean placeholder)
+    {
+        if (placeholder.getCommand() != null)
+        {
+            for (ICommand command : allCommands.getAllCommands())
+            {
+                if (placeholder.getCommand().equals(command.getName()))
+                {
+                    return command.modify(placeholder.getValue());
+                }
+            }
+        }
+        return placeholder.getValue();
     }
 
 

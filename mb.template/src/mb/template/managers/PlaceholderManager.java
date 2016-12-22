@@ -1,7 +1,7 @@
 /**
  * 
  */
-package mb.template.manager;
+package mb.template.managers;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,7 +34,7 @@ public class PlaceholderManager
 
 
 
-    public ArrayList<String> search(List<File> files, IProgressMonitor monitor)
+    public ArrayList<String> searchPlaceholders(List<File> files, IProgressMonitor monitor)
     {
         ArrayList<String> allFoundPlaceholders = new ArrayList<>();
 
