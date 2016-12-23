@@ -29,7 +29,7 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import mb.template.dialog.FolderSelectionDialog;
+import mb.template.dialog.ProjectExplorer;
 import mb.template.help.TemplateHelpContextIds;
 import mb.template.listeners.IChangeValueListener;
 import mb.template.listeners.IClickListener;
@@ -38,8 +38,8 @@ import mb.template.managers.PlaceholderManager;
 import mb.template.managers.ProjectManager;
 import mb.template.placeholder.Placeholder;
 import mb.template.placeholder.PlaceholderContainer;
-import mb.template.storages.TemplatePath;
-import mb.template.storages.TemplatePathStorage;
+import mb.template.storages.TemplateFolder;
+import mb.template.storages.TemplateFolderStorage;
 import mb.template.validator.Validator;
 import mb.template.wizard.table.editor.ColumnEditingSupport;
 import org.eclipse.swt.widgets.Label;
@@ -69,9 +69,9 @@ public class TemplatePage extends WizardPage
     private String projectFolderPath;
     private PlaceholderContainer placeholderContainer;
 
-    private TemplatePathStorage templatesStorage;
+    private TemplateFolderStorage templatesStorage;
     private PlaceholderManager placeholderManager;
-    private TemplatePath selectedTemplate;
+    private TemplateFolder selectedTemplate;
 
     private boolean projectFolderIsSelected;
 
@@ -84,9 +84,9 @@ public class TemplatePage extends WizardPage
         setDescription("Create a new template");
 
         this.placeholderContainer = new PlaceholderContainer();
-        this.projectFolderPath = ProjectManager.getSelectedElementPath();
+        this.projectFolderPath = null;
 
-        this.templatesStorage = new TemplatePathStorage();
+        this.templatesStorage = new TemplateFolderStorage();
         this.selectedTemplate = null;
         this.projectFolderIsSelected = false;
         
@@ -124,7 +124,7 @@ public class TemplatePage extends WizardPage
                 {
                     templatesStorage.removePath(combo.getSelectionIndex());
 
-                    setComboTemplatePaths();
+                    addComboTemplatePaths();
 
                     placeholderContainer.clear();
                 }
@@ -136,9 +136,9 @@ public class TemplatePage extends WizardPage
             @Override
             public void widgetSelected(SelectionEvent e)
             {
-                setSelectedProject();
+                setTemplate();
 
-                researchTemplatesForPlacehodlers();
+                searchTemplatesForPlacehodlers();
             }
 
         });
@@ -149,9 +149,9 @@ public class TemplatePage extends WizardPage
             @Override
             public String getText(Object element)
             {
-                if (element instanceof TemplatePath)
+                if (element instanceof TemplateFolder)
                 {
-                    TemplatePath template = (TemplatePath) element;
+                    TemplateFolder template = (TemplateFolder) element;
                     return template.getPath();
                 }
                 return super.getText(element);
@@ -231,11 +231,11 @@ public class TemplatePage extends WizardPage
 
                 int indexOfSelection = templatesStorage.addPath(newPath);
 
-                setComboTemplatePaths();
+                addComboTemplatePaths();
                 combo.select(indexOfSelection);
-                setSelectedProject();
+                setTemplate();
 
-                researchTemplatesForPlacehodlers();
+                searchTemplatesForPlacehodlers();
             }
 
         });
@@ -246,34 +246,35 @@ public class TemplatePage extends WizardPage
             @Override
             public void widgetSelected(SelectionEvent e)
             {
-                FolderSelectionDialog folderSelectionDialog = new FolderSelectionDialog(parent.getShell());
+                ProjectExplorer projectExplorer = new ProjectExplorer(parent.getShell());
 
-                folderSelectionDialog.addListener(new IClickListener()
+                projectExplorer.setFilterPath(projectFolderPath);
+
+                projectExplorer.open();
+                
+                projectExplorer.addListener(new IClickListener()
                 {
 
                     @Override
-                    public void isCLickedOk(String projectPath)
+                    public void isCLickedOk()
                     {
-                        projectFolderPath = projectPath;
-
-                        setProjectPath();
+                        projectFolderPath = projectExplorer.getSelectedFolderPath();
+                        txtProjectFolder.setText(projectFolderPath);
                     }
                 });
 
-                folderSelectionDialog.SetSelection(projectFolderPath);
-
-                folderSelectionDialog.open();
             }
 
         });
 
-        setComboTemplatePaths();
+        addComboTemplatePaths();
         combo.select(0);
 
-        setSelectedProject();
-        setProjectPath();
+        setTemplate();
+        projectFolderPath = ProjectManager.getSelectedProjectFromPackageExplorer();
+        txtProjectFolder.setText(projectFolderPath);
 
-        researchTemplatesForPlacehodlers();
+        searchTemplatesForPlacehodlers();
 
         setPageComplete(false);
 
@@ -282,7 +283,7 @@ public class TemplatePage extends WizardPage
 
 
 
-    private void setSelectedProject()
+    private void setTemplate()
     {
         IStructuredSelection selection = comboTemplatePaths.getStructuredSelection();
 
@@ -291,14 +292,14 @@ public class TemplatePage extends WizardPage
             return;
         }
 
-        TemplatePath template = (TemplatePath) selection.getFirstElement();
+        TemplateFolder template = (TemplateFolder) selection.getFirstElement();
 
         selectedTemplate = template;
     }
 
 
 
-    private void researchTemplatesForPlacehodlers()
+    private void searchTemplatesForPlacehodlers()
     {
         placeholderContainer.clear();
 
@@ -363,10 +364,8 @@ public class TemplatePage extends WizardPage
 
 
     /*
-     * 
      * Read templates from directory, replace placeholders and copy to selected project directory.
      * This method called when Finish button is clicked.
-     * 
      */
     public void copyTemplateAndReplaceyPlaceholders()
     {
@@ -380,7 +379,7 @@ public class TemplatePage extends WizardPage
 
         templatesStorage.incrementNumberOfSelection(selectedTemplate);
 
-        ProjectManager.refreshAllProjectInExplorer();
+        ProjectManager.refreshFolder(projectFolderPath);
     }
 
 
@@ -431,13 +430,11 @@ public class TemplatePage extends WizardPage
 
 
     /*
-     * 
-     * Set template path in text box
-     * 
+     * Add template path in text box
      */
-    private void setComboTemplatePaths()
+    private void addComboTemplatePaths()
     {
-        List<TemplatePath> templates = templatesStorage.loadPaths();
+        List<TemplateFolder> templates = templatesStorage.loadPaths();
 
         comboTemplatePaths.getCombo().removeAll();
 
@@ -446,28 +443,6 @@ public class TemplatePage extends WizardPage
             comboTemplatePaths.setInput(templates);
         }
     }
-
-
-
-    /*
-     * 
-     * Set project path in text box
-     * 
-     */
-    private void setProjectPath()
-    {
-        if (projectFolderPath != null)
-        {
-            FileManager fileManager = new FileManager();
-
-            String shortProjectPath = fileManager.getLastDirectoryChildNameFromPath(projectFolderPath);
-
-            projectFolderIsSelected = true;
-
-            txtProjectFolder.setText(shortProjectPath);
-        }
-    }
-
 
 
 

@@ -9,6 +9,6 @@ package mb.template.listeners;
 
 public interface IClickListener
 {
-    void isCLickedOk(String projectPath);
+    void isCLickedOk();
 
 }
