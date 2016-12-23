@@ -30,6 +30,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import mb.template.dialog.FolderSelectionDialog;
+import mb.template.help.TemplateHelpContextIds;
 import mb.template.listeners.IChangeValueListener;
 import mb.template.listeners.IClickListener;
 import mb.template.managers.FileManager;
@@ -61,8 +62,6 @@ import org.eclipse.jface.viewers.ComboViewer;
  */
 public class TemplatePage extends WizardPage
 {
-    private static final String HELP_CONTENT_ID = ".wizardHelp";
-
     private Composite container;
     private TableViewer viewer;
     private Text txtProjectFolder;
@@ -100,9 +99,13 @@ public class TemplatePage extends WizardPage
         this.container = new Composite(parent, SWT.NONE);
         this.container.setLayout(new GridLayout(3, false));
         //
+        setControl(this.container);
+        //
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(container,TemplateHelpContextIds.TEMPLATE_WIZARD);
+        //
         Label lblTemplateSourceFolder = new Label(container, SWT.NONE);
         lblTemplateSourceFolder.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
-        lblTemplateSourceFolder.setText("Template source folder");
+        lblTemplateSourceFolder.setText(" Source template folder");
         //
         comboTemplatePaths = new ComboViewer(container, SWT.READ_ONLY | SWT.V_SCROLL);
         Combo combo = comboTemplatePaths.getCombo();
@@ -176,7 +179,6 @@ public class TemplatePage extends WizardPage
                 projectFolderIsSelected = true;
             }
         });
-
         //
         Button btnProjectFolder = new Button(container, SWT.NONE);
         btnProjectFolder.setText("Browse..");
@@ -272,7 +274,6 @@ public class TemplatePage extends WizardPage
         researchTemplatesForPlacehodlers();
 
         setPageComplete(false);
-        setControl(this.container);
 
         initDataBindings();
     }
@@ -470,12 +471,6 @@ public class TemplatePage extends WizardPage
     }
 
 
-
-    public void performHelp()
-    {
-        PlatformUI.getWorkbench().getHelpSystem()
-                .displayHelp(HELP_CONTENT_ID);
-    }
 
 
 
