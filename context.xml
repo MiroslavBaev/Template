@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<contexts>
+<context id="templateHelp" title="About new template wizard">
+      <description>Create new template.</description>
+      <topic href="html/gettingstarted/subtopic.html" label="Details..."/>
+   </context>
+</contexts>
