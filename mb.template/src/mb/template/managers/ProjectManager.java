@@ -1,11 +1,13 @@
 package mb.template.managers;
 
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.ISelectionService;
@@ -22,6 +24,18 @@ import org.eclipse.ui.PlatformUI;
 public class ProjectManager
 {
    
+    
+    
+//    public void selectProjectFolder()
+//    {
+//        
+//    }
+//    
+//    public IFolder getSelectedProjectFolder()
+//    {
+//        
+//    }
+    
    
     
     /*
@@ -29,19 +43,19 @@ public class ProjectManager
      * Refresh selected project
      * s
      */
-    public static void refreshProjectInExplorer()
-    {
-        IProject project = getSelectedProject();
-        
-        try
-        {
-            project.refreshLocal(IResource.DEPTH_INFINITE, null);
-        }
-        catch (CoreException e)
-        {
-            e.printStackTrace();
-        }
-    }
+//    public static void refreshProjectInExplorer()
+//    {
+//        IProject project = getSelectedProject();
+//        
+//        try
+//        {
+//            project.refreshLocal(IResource.DEPTH_INFINITE, null);
+//        }
+//        catch (CoreException e)
+//        {
+//            e.printStackTrace();
+//        }
+//    }
 
 
     /*
@@ -54,7 +68,7 @@ public class ProjectManager
         IWorkspaceRoot workspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
         IProject[] projects = workspaceRoot.getProjects();
         for (int i = 0; i < projects.length; i++)
-        {
+        { 
             IProject project = projects[i];
             
             if (project.isOpen())
@@ -89,9 +103,10 @@ public class ProjectManager
     public static IProject getSelectedProject()
     {
         IProject project = null;
-        ISelectionService selectionService = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getSelectionService();
-
-        ISelection selection = selectionService.getSelection();
+        
+        IWorkbenchWindow window =
+                PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+            ISelection selection = window.getSelectionService().getSelection("org.eclipse.jdt.ui.PackageExplorer");
 
         
         if (selection instanceof IStructuredSelection)
@@ -148,5 +163,24 @@ public class ProjectManager
         }
 
         return null;
+    }
+    
+    
+    
+    public static void refreshFolderFromPath(String path)
+    {
+        Path selectedPath = new Path(path);
+        
+        IFolder folder = getSelectedProject().getFolder(selectedPath);
+        
+        try
+        {
+            folder.refreshLocal(IResource.DEPTH_INFINITE, null);
+        }
+        catch (CoreException e)
+        {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 }

@@ -54,7 +54,7 @@ public class FolderSelectionDialog extends Dialog
         Composite container = (Composite) super.createDialogArea(parent);
 
         Label lblNewLabel = new Label(container, SWT.NONE);
-        lblNewLabel.setText("Choose a export folder:");
+        lblNewLabel.setText("Choose a export project folder:");
 
         treeView = new TreeView(container);
         Tree tree = treeView.getTree();

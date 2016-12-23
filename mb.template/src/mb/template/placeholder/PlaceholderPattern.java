@@ -9,41 +9,31 @@ import java.util.regex.Pattern;
 
 
 /**
- * @author Mbaev
+ * @author mbaev
  *
  */
 public class PlaceholderPattern
 {
-    // "(?i)__Prefix____TaskName__";
-
     private  List<Pattern> patterns = new ArrayList<>();
 
 
 
     public PlaceholderPattern()
     {
-        patterns.add(Pattern.compile("\\$\\{(.*?)\\}"));
+        setPatterns(Pattern.compile("\\$\\{(.*?)\\}"));
     }
 
 
 
     public List<Pattern> getPatterns()
     {
-        
         return patterns;
+    }
+    
+    private void setPatterns(Pattern pattern)
+    {
+        patterns.add(pattern);
     }
 
 
-//
-//    public static void setPatterns(String pattern, boolean caseSensitive)
-//    {
-//        String notCaseSensitiveRegex = "(?i)";
-//        
-//        if(!caseSensitive)
-//        {
-//            pattern = notCaseSensitiveRegex + pattern;
-//        }
-//        
-//        patterns.add(Pattern.compile(pattern));
-//    }
 }

@@ -36,9 +36,8 @@ import mb.template.listeners.IClickListener;
 import mb.template.managers.FileManager;
 import mb.template.managers.PlaceholderManager;
 import mb.template.managers.ProjectManager;
-import mb.template.managers.TemplateManager;
-import mb.template.placeholder.PlaceholderBean;
-import mb.template.placeholder.PlaceholderContainerBean;
+import mb.template.placeholder.Placeholder;
+import mb.template.placeholder.PlaceholderContainer;
 import mb.template.storages.TemplatePath;
 import mb.template.storages.TemplatePathStorage;
 import mb.template.validator.Validator;
@@ -68,9 +67,10 @@ public class TemplatePage extends WizardPage
     private ComboViewer comboTemplatePaths;
 
     private String projectFolderPath;
-    private PlaceholderContainerBean placeholderContainer;
+    private PlaceholderContainer placeholderContainer;
 
     private TemplatePathStorage templatesStorage;
+    private PlaceholderManager placeholderManager;
     private TemplatePath selectedTemplate;
 
     private boolean projectFolderIsSelected;
@@ -83,12 +83,14 @@ public class TemplatePage extends WizardPage
         setTitle("Template");
         setDescription("Create a new template");
 
-        this.placeholderContainer = new PlaceholderContainerBean();
+        this.placeholderContainer = new PlaceholderContainer();
         this.projectFolderPath = ProjectManager.getSelectedElementPath();
 
         this.templatesStorage = new TemplatePathStorage();
         this.selectedTemplate = null;
         this.projectFolderIsSelected = false;
+        
+        this.placeholderManager = new PlaceholderManager();
     }
 
 
@@ -111,7 +113,7 @@ public class TemplatePage extends WizardPage
         Combo combo = comboTemplatePaths.getCombo();
         combo.setVisibleItemCount(8);
         combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-
+        //
         // Delete combo items
         combo.addKeyListener(new KeyAdapter()
         {
@@ -331,8 +333,6 @@ public class TemplatePage extends WizardPage
             return;
         }
 
-        PlaceholderManager placeholderManager = new PlaceholderManager();
-
         List<String> allPlaceholders = new ArrayList<>();
 
         FileManager fileManager = new FileManager();
@@ -340,12 +340,12 @@ public class TemplatePage extends WizardPage
         // Recursive searching.Input - path Output - files
         List<File> files = fileManager.searchFilesInDirectory(new File(selectedTemplate.getPath()), monitor);
 
-        allPlaceholders = placeholderManager.searchPlaceholders(files, monitor);
+        allPlaceholders = placeholderManager.searchPlaceholdersInFiles(files, monitor);
 
 
         for (String placeholder : allPlaceholders)
         {
-            PlaceholderBean placeholderBean = new PlaceholderBean(placeholder);
+            Placeholder placeholderBean = new Placeholder(placeholder);
 
             placeholderBean.addChangeValueListener(new IChangeValueListener()
             {
@@ -375,9 +375,7 @@ public class TemplatePage extends WizardPage
             return;
         }
 
-        TemplateManager templateManager = new TemplateManager();
-
-        templateManager.copyFilesAndReplacePlaceholders(
+        placeholderManager.copyFilesAndReplacePlaceholders(
                 new File(selectedTemplate.getPath()), new File(projectFolderPath), placeholderContainer.getPlaceholders());
 
         templatesStorage.incrementNumberOfSelection(selectedTemplate);
@@ -393,7 +391,7 @@ public class TemplatePage extends WizardPage
     private boolean Validate()
     {
 
-        for (PlaceholderBean placeholder : this.placeholderContainer.getPlaceholders())
+        for (Placeholder placeholder : this.placeholderContainer.getPlaceholders())
         {
             // Validate - empty field
             if (Validator.filenameIsEmpty(placeholder.getValue()))
@@ -486,9 +484,9 @@ public class TemplatePage extends WizardPage
         //
         IObservableSet knownElements = contentProvider.getKnownElements();
         //
-        final IObservableMap placeholder = BeanProperties.value(PlaceholderBean.class, "placeholder").observeDetail(knownElements);
+        final IObservableMap placeholder = BeanProperties.value(Placeholder.class, "placeholder").observeDetail(knownElements);
         //
-        final IObservableMap value = BeanProperties.value(PlaceholderBean.class, "value").observeDetail(knownElements);
+        final IObservableMap value = BeanProperties.value(Placeholder.class, "value").observeDetail(knownElements);
         //
         IObservableMap[] labelMaps = { placeholder, value };
         ILabelProvider labelProvider = new ObservableMapLabelProvider(labelMaps)
@@ -498,7 +496,7 @@ public class TemplatePage extends WizardPage
             {
                 if (columnIndex == 0)
                 {
-                    return ((PlaceholderBean) element).getPlaceholderWithoutCommand();
+                    return ((Placeholder) element).getPlaceholderWithoutCommand();
                 }
                 else
                 {

@@ -8,7 +8,7 @@ import org.eclipse.jface.viewers.EditingSupport;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TextCellEditor;
 
-import mb.template.placeholder.PlaceholderBean;
+import mb.template.placeholder.Placeholder;
 
 /**
  * Column Editing support used make table column editable
@@ -54,7 +54,7 @@ public class ColumnEditingSupport extends EditingSupport
     protected Object getValue(Object element)
     {
 
-        return ((PlaceholderBean) element).getValue();
+        return ((Placeholder) element).getValue();
 
     }
 
@@ -65,7 +65,7 @@ public class ColumnEditingSupport extends EditingSupport
     protected void setValue(Object element, Object userInputValue)
     {
 
-        ((PlaceholderBean) element).setValue(String.valueOf(userInputValue));
+        ((Placeholder) element).setValue(String.valueOf(userInputValue));
 
         viewer.update(element, null);
 
