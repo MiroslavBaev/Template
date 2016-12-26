@@ -9,6 +9,7 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
@@ -63,10 +64,13 @@ public class TemplatePage extends WizardPage
 {
     private Composite container;
     private TableViewer viewer;
-    private Text txtProjectFolder;
+
+    private Text txtProjectPath;
     private ComboViewer comboTemplatePaths;
 
+    private String projectPath;
     private String projectFolderPath;
+    
     private PlaceholderContainer placeholderContainer;
 
     private TemplateFolderStorage templatesStorage;
@@ -84,12 +88,12 @@ public class TemplatePage extends WizardPage
         setDescription("Create a new template");
 
         this.placeholderContainer = new PlaceholderContainer();
-        this.projectFolderPath = null;
+        this.projectPath = null;
 
         this.templatesStorage = new TemplateFolderStorage();
         this.selectedTemplate = null;
         this.projectFolderIsSelected = false;
-        
+
         this.placeholderManager = new PlaceholderManager();
     }
 
@@ -103,7 +107,7 @@ public class TemplatePage extends WizardPage
         //
         setControl(this.container);
         //
-        PlatformUI.getWorkbench().getHelpSystem().setHelp(container,TemplateHelpContextIds.TEMPLATE_WIZARD);
+        PlatformUI.getWorkbench().getHelpSystem().setHelp(container, TemplateHelpContextIds.TEMPLATE_WIZARD);
         //
         Label lblTemplateSourceFolder = new Label(container, SWT.NONE);
         lblTemplateSourceFolder.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
@@ -136,9 +140,9 @@ public class TemplatePage extends WizardPage
             @Override
             public void widgetSelected(SelectionEvent e)
             {
-                setTemplate();
+                getSelectedTemplateFromCombo();
 
-                searchTemplatesForPlacehodlers();
+                searchTemplateForPlacehodlers();
             }
 
         });
@@ -167,10 +171,10 @@ public class TemplatePage extends WizardPage
         Label lblProjectFolder = new Label(container, SWT.NONE);
         lblProjectFolder.setText("Export project folder");
         //
-        txtProjectFolder = new Text(container, SWT.BORDER);
-        txtProjectFolder.setEditable(false);
-        txtProjectFolder.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
-        txtProjectFolder.addModifyListener(new ModifyListener()
+        txtProjectPath = new Text(container, SWT.BORDER);
+        txtProjectPath.setEditable(false);
+        txtProjectPath.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+        txtProjectPath.addModifyListener(new ModifyListener()
         {
             @Override
             public void modifyText(ModifyEvent e)
@@ -233,9 +237,9 @@ public class TemplatePage extends WizardPage
 
                 addComboTemplatePaths();
                 combo.select(indexOfSelection);
-                setTemplate();
+                getSelectedTemplateFromCombo();
 
-                searchTemplatesForPlacehodlers();
+                searchTemplateForPlacehodlers();
             }
 
         });
@@ -248,20 +252,20 @@ public class TemplatePage extends WizardPage
             {
                 ProjectExplorer projectExplorer = new ProjectExplorer(parent.getShell());
 
-                projectExplorer.setFilterPath(projectFolderPath);
-
-                projectExplorer.open();
-                
+                projectExplorer.setFilterPath(projectPath);
+               
                 projectExplorer.addListener(new IClickListener()
                 {
-
                     @Override
                     public void isCLickedOk()
                     {
-                        projectFolderPath = projectExplorer.getSelectedFolderPath();
-                        txtProjectFolder.setText(projectFolderPath);
+                        projectPath = projectExplorer.getProjectFolderFullPath();
+                        projectFolderPath = projectExplorer.getProjectName();
+                        addTextProjectPath(projectPath);
                     }
                 });
+                
+                projectExplorer.open();
 
             }
 
@@ -270,11 +274,12 @@ public class TemplatePage extends WizardPage
         addComboTemplatePaths();
         combo.select(0);
 
-        setTemplate();
-        projectFolderPath = ProjectManager.getSelectedProjectFromPackageExplorer();
-        txtProjectFolder.setText(projectFolderPath);
+        getSelectedTemplateFromCombo();
+        projectPath = ProjectManager.getSelectedProjectFromPackageExplorerFullPath();
+projectFolderPath = ProjectManager.getSelectedProjectFolder();
+        addTextProjectPath(projectPath);
 
-        searchTemplatesForPlacehodlers();
+        searchTemplateForPlacehodlers();
 
         setPageComplete(false);
 
@@ -283,7 +288,7 @@ public class TemplatePage extends WizardPage
 
 
 
-    private void setTemplate()
+    private void getSelectedTemplateFromCombo()
     {
         IStructuredSelection selection = comboTemplatePaths.getStructuredSelection();
 
@@ -299,7 +304,37 @@ public class TemplatePage extends WizardPage
 
 
 
-    private void searchTemplatesForPlacehodlers()
+    /*
+     * Add template path in text box
+     */
+    private void addComboTemplatePaths()
+    {
+        List<TemplateFolder> templates = templatesStorage.loadPaths();
+
+        comboTemplatePaths.getCombo().removeAll();
+
+        if (templates != null)
+        {
+            comboTemplatePaths.setInput(templates);
+        }
+    }
+
+
+
+    private void addTextProjectPath(String fullPath)
+    {
+        if (fullPath == null)
+        {
+            return;
+        }
+
+        txtProjectPath.setText(fullPath);
+
+    }
+
+
+
+    private void searchTemplateForPlacehodlers()
     {
         placeholderContainer.clear();
 
@@ -375,7 +410,7 @@ public class TemplatePage extends WizardPage
         }
 
         placeholderManager.copyFilesAndReplacePlaceholders(
-                new File(selectedTemplate.getPath()), new File(projectFolderPath), placeholderContainer.getPlaceholders());
+                new File(selectedTemplate.getPath()), new File(projectPath), placeholderContainer.getPlaceholders());
 
         templatesStorage.incrementNumberOfSelection(selectedTemplate);
 
@@ -430,24 +465,6 @@ public class TemplatePage extends WizardPage
 
 
     /*
-     * Add template path in text box
-     */
-    private void addComboTemplatePaths()
-    {
-        List<TemplateFolder> templates = templatesStorage.loadPaths();
-
-        comboTemplatePaths.getCombo().removeAll();
-
-        if (templates != null)
-        {
-            comboTemplatePaths.setInput(templates);
-        }
-    }
-
-
-
-
-    /*
      * Placeholder-value table data binding
      */
     protected DataBindingContext initDataBindings()
@@ -489,7 +506,6 @@ public class TemplatePage extends WizardPage
         this.viewer.setInput(changesTheBeanObserveList);
 
         return bindingContext;
-
     }
 
 }
