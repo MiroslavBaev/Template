@@ -20,6 +20,7 @@ import mb.template.tree.TreeView;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Label;
 
 
@@ -38,12 +39,10 @@ public class ProjectExplorer extends Dialog
 
 
 
-    /**
-     * @param parentShell
-     */
     public ProjectExplorer(Shell parentShell)
     {
         super(parentShell);
+        setShellStyle(SWT.BORDER | SWT.MIN | SWT.RESIZE);
 
         this.workspacePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
         this.selectionPath = null;
@@ -56,12 +55,15 @@ public class ProjectExplorer extends Dialog
     {
         Composite container = (Composite) super.createDialogArea(parent);
 
+        container.setLayout(new GridLayout());
+        new Label(container, SWT.NONE);
+
         Label lblNewLabel = new Label(container, SWT.NONE);
-        lblNewLabel.setText("Choose a export project folder:");
+        lblNewLabel.setText("Select export project folder:");
 
         treeView = new TreeView(container);
         Tree tree = treeView.getTree();
-        GridData gd_tree = new GridData(SWT.LEFT, SWT.CENTER, false, false, 1, 1);
+        GridData gd_tree = new GridData(SWT.FILL, SWT.FILL, true, true, 1, 1);
         gd_tree.heightHint = 181;
         gd_tree.widthHint = 404;
         tree.setLayoutData(gd_tree);
@@ -70,16 +72,8 @@ public class ProjectExplorer extends Dialog
 
         treeView.setInput(new File(workspacePath).listFiles());
 
-        if (selectionPath != null)
-        {
-            File file = new File(selectionPath);
-
-            treeView.setSelection(new StructuredSelection(file));
-        }
-
         tree.addSelectionListener(new SelectionAdapter()
         {
-
             @Override
             public void widgetSelected(SelectionEvent e)
             {
@@ -91,8 +85,14 @@ public class ProjectExplorer extends Dialog
                 selectionPath = selection[0].getData().toString();
 
             }
-
         });
+
+        if (selectionPath != null)
+        {
+            File file = new File(selectionPath);
+
+            treeView.setSelection(new StructuredSelection(file));
+        }
 
         return container;
     }
@@ -129,6 +129,8 @@ public class ProjectExplorer extends Dialog
     protected void okPressed()
     {
         fireButtonOkClick();
+
+        removeListeners();
 
         super.okPressed();
     }

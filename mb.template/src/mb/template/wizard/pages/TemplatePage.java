@@ -110,7 +110,6 @@ public class TemplatePage extends WizardPage
         PlatformUI.getWorkbench().getHelpSystem().setHelp(container, TemplateHelpContextIds.TEMPLATE_WIZARD);
         //
         Label lblTemplateSourceFolder = new Label(container, SWT.NONE);
-        lblTemplateSourceFolder.setLayoutData(new GridData(SWT.RIGHT, SWT.CENTER, false, false, 1, 1));
         lblTemplateSourceFolder.setText(" Source template folder");
         //
         comboTemplatePaths = new ComboViewer(container, SWT.READ_ONLY | SWT.V_SCROLL);
