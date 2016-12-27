@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jface.dialogs.Dialog;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -46,7 +45,7 @@ public class ProjectExplorer extends Dialog
     {
         super(parentShell);
 
-        this.workspacePath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString();
+        this.workspacePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
         this.selectionPath = null;
     }
 
@@ -100,10 +99,8 @@ public class ProjectExplorer extends Dialog
 
 
 
-    public String getProjectName()
+    public String getProjectFolderPath()
     {
-        workspacePath = workspacePath.replace("/", "\\");
-        
         return selectionPath.replace(workspacePath, "");
     }
 

@@ -9,7 +9,6 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
@@ -68,9 +67,9 @@ public class TemplatePage extends WizardPage
     private Text txtProjectPath;
     private ComboViewer comboTemplatePaths;
 
-    private String projectPath;
-    private String projectFolderPath;
-    
+    private String selectedProjectFolderFullPath;
+    private String selectedProjectFolderPath;
+
     private PlaceholderContainer placeholderContainer;
 
     private TemplateFolderStorage templatesStorage;
@@ -88,7 +87,7 @@ public class TemplatePage extends WizardPage
         setDescription("Create a new template");
 
         this.placeholderContainer = new PlaceholderContainer();
-        this.projectPath = null;
+        this.selectedProjectFolderFullPath = null;
 
         this.templatesStorage = new TemplateFolderStorage();
         this.selectedTemplate = null;
@@ -106,6 +105,7 @@ public class TemplatePage extends WizardPage
         this.container.setLayout(new GridLayout(3, false));
         //
         setControl(this.container);
+        setPageComplete(false);
         //
         PlatformUI.getWorkbench().getHelpSystem().setHelp(container, TemplateHelpContextIds.TEMPLATE_WIZARD);
         //
@@ -252,19 +252,21 @@ public class TemplatePage extends WizardPage
             {
                 ProjectExplorer projectExplorer = new ProjectExplorer(parent.getShell());
 
-                projectExplorer.setFilterPath(projectPath);
-               
+                projectExplorer.setFilterPath(selectedProjectFolderFullPath);
+
                 projectExplorer.addListener(new IClickListener()
                 {
                     @Override
                     public void isCLickedOk()
                     {
-                        projectPath = projectExplorer.getProjectFolderFullPath();
-                        projectFolderPath = projectExplorer.getProjectName();
-                        addTextProjectPath(projectPath);
+                        selectedProjectFolderFullPath = projectExplorer.getProjectFolderFullPath();
+                        
+                        selectedProjectFolderPath = projectExplorer.getProjectFolderPath();
+                        
+                        addTextProjectPath(selectedProjectFolderFullPath);
                     }
                 });
-                
+
                 projectExplorer.open();
 
             }
@@ -275,13 +277,13 @@ public class TemplatePage extends WizardPage
         combo.select(0);
 
         getSelectedTemplateFromCombo();
-        projectPath = ProjectManager.getSelectedProjectFromPackageExplorerFullPath();
-projectFolderPath = ProjectManager.getSelectedProjectFolder();
-        addTextProjectPath(projectPath);
+        
+        selectedProjectFolderFullPath = ProjectManager.getSelectedProjectFromPackageExplorerFullPath();
+        selectedProjectFolderPath = ProjectManager.getSelectedProjectFolder();
+        
+        addTextProjectPath(selectedProjectFolderFullPath);
 
         searchTemplateForPlacehodlers();
-
-        setPageComplete(false);
 
         initDataBindings();
     }
@@ -410,11 +412,11 @@ projectFolderPath = ProjectManager.getSelectedProjectFolder();
         }
 
         placeholderManager.copyFilesAndReplacePlaceholders(
-                new File(selectedTemplate.getPath()), new File(projectPath), placeholderContainer.getPlaceholders());
+                new File(selectedTemplate.getPath()), new File(selectedProjectFolderFullPath), placeholderContainer.getPlaceholders());
 
         templatesStorage.incrementNumberOfSelection(selectedTemplate);
 
-        ProjectManager.refreshFolder(projectFolderPath);
+        ProjectManager.refreshFolder(selectedProjectFolderPath);
     }
 
 

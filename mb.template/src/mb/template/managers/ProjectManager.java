@@ -1,5 +1,8 @@
 package mb.template.managers;
 
+import java.io.File;
+import java.util.regex.Pattern;
+
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -8,7 +11,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
-import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -23,34 +25,30 @@ import org.eclipse.ui.PlatformUI;
  */
 public class ProjectManager
 {
-    private static IResource selectedProjectFolderResource;
-
-
-//    public static String getProjectExplorerProject(String name)
-//    {
-//        IWorkspace workspace = ResourcesPlugin.getWorkspace();
-//
-//        IProject project = workspace.getRoot().getProject(name);
-//
-//        return project.getLocation().toString();
-//    }
+    private static String selectedProjectFolderFullPath;
 
 
 
+    /*
+     * Return selected project folder path from Package Explorer
+     */
     public static String getSelectedProjectFolder()
     {
-        if(selectedProjectFolderResource == null)
+        if (selectedProjectFolderFullPath == null)
         {
             return null;
-            
         }
-        return selectedProjectFolderResource.getFullPath().toString();
+
+        String workspacePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
+
+        return selectedProjectFolderFullPath.replace(workspacePath, "");
+
     }
 
 
 
     /*
-     * Get selected project from package explorer
+     * Return selected project folder full path from Package Explorer
      */
     public static String getSelectedProjectFromPackageExplorerFullPath()
     {
@@ -72,24 +70,20 @@ public class ProjectManager
         {
             IResource resource = (IResource) element;
 
-            // return only Test/xxxxx
-            // return resource.getFullPath().toString();
+            selectedProjectFolderFullPath = resource.getLocation().toOSString();
 
-            // RETURN PROJECT
+            return selectedProjectFolderFullPath;
 
-            selectedProjectFolderResource = resource;
-
-            return resource.getLocation().toString();
-            
         }
         else if (element instanceof IAdaptable)
         {
             IAdaptable adaptable = (IAdaptable) element;
+
             IResource resource = adaptable.getAdapter(IResource.class);
 
-            selectedProjectFolderResource = resource;
+            selectedProjectFolderFullPath = resource.getLocation().toString();
 
-            return resource.getLocation().toString();
+            return selectedProjectFolderFullPath;
         }
 
         return null;
@@ -99,33 +93,57 @@ public class ProjectManager
 
     public static void refreshFolder(String path)
     {
+        if (path == null)
+        {
+            return;
+        }
+
+        if (path.startsWith("\\"))
+        {
+            path = path.replaceFirst(Pattern.quote(File.separator), "");
+        }
         
+        String projectName = null;
+        String folderPath = null;
+        
+        int projectNameStartIndex = 0;
+        int projectNameEndIndex = path.indexOf("\\");
+        
+        if( projectNameEndIndex == -1)
+        {
+            projectName = path.substring(projectNameStartIndex);
+        }
+        else
+        {
+            projectName = path.substring(0, projectNameEndIndex);
+            
+            folderPath = path.substring(projectNameEndIndex);
+        }
+
         IWorkspace workspace = ResourcesPlugin.getWorkspace();
-        
-        IProject project = workspace.getRoot().getProject(path);
-        
-        
+
+        IProject project = workspace.getRoot().getProject(projectName);
+
         try
         {
-            project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+            if (folderPath != null)
+            {
+                IFolder folder = project.getFolder(folderPath);
+                
+                folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+            }
+            else
+            {
+                project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+            }
+
         }
         catch (CoreException e)
         {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
-        
-//        IFolder folder = selectedProjectFolderResource.getProject()getFolder(new Path(path));
-//
-//        try
-//        {
-//            folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
-//        }
-//        catch (CoreException e)
-//        {
-//            // TODO Auto-generated catch block
-//            e.printStackTrace();
-//        }
+
+//       
     }
 
 }
