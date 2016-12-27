@@ -26,6 +26,7 @@ import org.eclipse.ui.PlatformUI;
 public class ProjectManager
 {
     private static String selectedProjectFolderFullPath;
+    private static String selectedProjectFolderPath;
 
 
 
@@ -39,10 +40,7 @@ public class ProjectManager
             return null;
         }
 
-        String workspacePath = ResourcesPlugin.getWorkspace().getRoot().getRawLocation().toOSString();
-
-        return selectedProjectFolderFullPath.replace(workspacePath, "");
-
+        return selectedProjectFolderPath;
     }
 
 
@@ -71,6 +69,7 @@ public class ProjectManager
             IResource resource = (IResource) element;
 
             selectedProjectFolderFullPath = resource.getLocation().toOSString();
+            selectedProjectFolderPath = resource.getFullPath().toOSString();
 
             return selectedProjectFolderFullPath;
 
@@ -81,7 +80,8 @@ public class ProjectManager
 
             IResource resource = adaptable.getAdapter(IResource.class);
 
-            selectedProjectFolderFullPath = resource.getLocation().toString();
+            selectedProjectFolderFullPath = resource.getLocation().toOSString();
+            selectedProjectFolderPath = resource.getFullPath().toOSString();
 
             return selectedProjectFolderFullPath;
         }
@@ -102,21 +102,21 @@ public class ProjectManager
         {
             path = path.replaceFirst(Pattern.quote(File.separator), "");
         }
-        
+
         String projectName = null;
         String folderPath = null;
-        
+
         int projectNameStartIndex = 0;
         int projectNameEndIndex = path.indexOf("\\");
-        
-        if( projectNameEndIndex == -1)
+
+        if (projectNameEndIndex == -1)
         {
             projectName = path.substring(projectNameStartIndex);
         }
         else
         {
             projectName = path.substring(0, projectNameEndIndex);
-            
+
             folderPath = path.substring(projectNameEndIndex);
         }
 
@@ -129,7 +129,7 @@ public class ProjectManager
             if (folderPath != null)
             {
                 IFolder folder = project.getFolder(folderPath);
-                
+
                 folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
             }
             else
@@ -142,8 +142,7 @@ public class ProjectManager
         {
             e.printStackTrace();
         }
-
-//       
+      
     }
 
 }

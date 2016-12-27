@@ -73,9 +73,6 @@ public class PlaceholderContainer extends AbstractBean
     public void clear()
     {
         setPlaceholders(new ArrayList<>());
-
-        // clear list and dispose listeners on placeholder objects.
-        this.placeholders.clear();
     }
 
 

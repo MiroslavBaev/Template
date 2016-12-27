@@ -9,9 +9,12 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
+import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -29,7 +32,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import mb.template.dialog.ProjectExplorer;
+import org.eclipse.swt.widgets.Event;
+
+import mb.template.dialog.ProjectExplorerDialog;
 import mb.template.help.TemplateHelpContextIds;
 import mb.template.listeners.IChangeValueListener;
 import mb.template.listeners.IClickListener;
@@ -43,9 +48,13 @@ import mb.template.storages.TemplateFolderStorage;
 import mb.template.validator.Validator;
 import mb.template.wizard.table.editor.ColumnEditingSupport;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
+import org.eclipse.ui.model.BaseWorkbenchContentProvider;
+import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
@@ -98,7 +107,6 @@ public class TemplatePage extends WizardPage
 
 
 
-    @Override
     public void createControl(Composite parent)
     {
         this.container = new Composite(parent, SWT.NONE);
@@ -249,25 +257,16 @@ public class TemplatePage extends WizardPage
             @Override
             public void widgetSelected(SelectionEvent e)
             {
-                ProjectExplorer projectExplorer = new ProjectExplorer(parent.getShell());
+                ProjectExplorerDialog projectExplorerDialog = new ProjectExplorerDialog(parent.getShell(), new WorkbenchLabelProvider(), new BaseWorkbenchContentProvider());
 
-                projectExplorer.setFilterPath(selectedProjectFolderFullPath);
+                projectExplorerDialog.setInput(ResourcesPlugin.getWorkspace().getRoot());
 
-                projectExplorer.addListener(new IClickListener()
-                {
-                    @Override
-                    public void isCLickedOk()
-                    {
-                        selectedProjectFolderFullPath = projectExplorer.getProjectFolderFullPath();
-                        
-                        selectedProjectFolderPath = projectExplorer.getProjectFolderPath();
-                        
-                        addTextProjectPath(selectedProjectFolderFullPath);
-                    }
-                });
+                projectExplorerDialog.open();
 
-                projectExplorer.open();
+                selectedProjectFolderFullPath = projectExplorerDialog.getSelectedProjectFromProjectExplorerFullPath();
+                selectedProjectFolderPath = projectExplorerDialog.getSelectedProjectFolder();
 
+                addTextProjectPath(selectedProjectFolderPath);
             }
 
         });
@@ -276,11 +275,11 @@ public class TemplatePage extends WizardPage
         combo.select(0);
 
         getSelectedTemplateFromCombo();
-        
+
         selectedProjectFolderFullPath = ProjectManager.getSelectedProjectFromPackageExplorerFullPath();
         selectedProjectFolderPath = ProjectManager.getSelectedProjectFolder();
-        
-        addTextProjectPath(selectedProjectFolderFullPath);
+
+        addTextProjectPath(selectedProjectFolderPath);
 
         searchTemplateForPlacehodlers();
 
@@ -328,9 +327,13 @@ public class TemplatePage extends WizardPage
         {
             return;
         }
-
+        
+        if(fullPath.startsWith("\\"))
+        {
+           fullPath = fullPath.substring(1); 
+        }
+        
         txtProjectPath.setText(fullPath);
-
     }
 
 
@@ -378,7 +381,6 @@ public class TemplatePage extends WizardPage
         List<File> files = fileManager.searchFilesInDirectory(new File(selectedTemplate.getPath()), monitor);
 
         allPlaceholders = placeholderManager.searchPlaceholdersInFiles(files, monitor);
-
 
         for (String placeholder : allPlaceholders)
         {

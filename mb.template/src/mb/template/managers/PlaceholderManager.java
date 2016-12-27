@@ -14,7 +14,6 @@ import java.util.List;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.swt.widgets.Display;
-
 import mb.template.placeholder.Placeholder;
 import mb.template.placeholder.PlaceholderPattern;
 import mb.template.placeholder.commands.Commands;
@@ -29,7 +28,6 @@ import mb.template.placeholder.commands.ICommand;
  */
 public class PlaceholderManager
 {
-    private ArrayList<String> allFoundPlaceholders;
     private SearchManager searchManager;
 
     private Commands allCommands;
@@ -37,7 +35,6 @@ public class PlaceholderManager
     
     public PlaceholderManager()
     {
-        this.allFoundPlaceholders = new ArrayList<>();
         this.searchManager = new SearchManager(new PlaceholderPattern().getPatterns());
         this.allCommands = new Commands();
     }
@@ -50,6 +47,7 @@ public class PlaceholderManager
      */
     public ArrayList<String> searchPlaceholdersInFiles(List<File> files, IProgressMonitor monitor)
     {
+        ArrayList<String> allFoundPlaceholders = new ArrayList<>();
         List<String> foundedMatches = null;
 
         Charset charset = StandardCharsets.UTF_8;
@@ -85,11 +83,11 @@ public class PlaceholderManager
                     String content = new String(Files.readAllBytes(path), charset);
 
                     foundedMatches = searchManager.search(content);
-
                 }
                 catch (IOException e)
                 {
-                    MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Error", "There was a problem with reading the template files");
+                    MessageDialog.openInformation(Display.getCurrent().getActiveShell(), 
+                            "Error", "There was a problem with reading the template files");
 
                     e.printStackTrace();
                 }
@@ -102,7 +100,8 @@ public class PlaceholderManager
                         allFoundPlaceholders.add(foundMatch);
                     }
                 }
-
+                
+                
             }
         }
 

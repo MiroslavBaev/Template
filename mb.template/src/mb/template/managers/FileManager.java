@@ -101,7 +101,7 @@ public class FileManager
         {
             return null;
         }
-        if (new File(fullPath).isFile())
+        if (!new File(fullPath).isDirectory())
         {
             char separator = '\\';
 
