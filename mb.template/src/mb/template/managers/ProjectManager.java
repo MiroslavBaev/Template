@@ -1,16 +1,10 @@
 package mb.template.managers;
 
-import java.io.File;
-import java.util.regex.Pattern;
-
-import org.eclipse.core.resources.IFolder;
-import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IAdaptable;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -25,30 +19,47 @@ import org.eclipse.ui.PlatformUI;
  */
 public class ProjectManager
 {
-    private static String selectedProjectFolderFullPath;
-    private static String selectedProjectFolderPath;
-
-
-
     /*
-     * Return selected project folder path from Package Explorer
+     * Return short path from given IResource
      */
-    public static String getSelectedProjectFolder()
+    public static String getParentPath(IResource resource)
     {
-        if (selectedProjectFolderFullPath == null)
-        {
+        if (resource == null)
             return null;
+
+        String parentPath = resource.getParent().toString();
+
+        int slashIndex = parentPath.indexOf("/");
+
+        if (slashIndex != -1)
+        {
+            parentPath = parentPath.substring(slashIndex + 1);
         }
 
-        return selectedProjectFolderPath;
+        return new Path(parentPath).toOSString();
+
+
     }
 
 
 
     /*
-     * Return selected project folder full path from Package Explorer
+     * Return full path from given IResource
      */
-    public static String getSelectedProjectFromPackageExplorerFullPath()
+    public static String getLocationPath(IResource resource)
+    {
+        if (resource == null)
+            return null;
+
+        return resource.getLocation().toOSString();
+    }
+
+
+
+    /*
+     * Return selected project resource from Package Explorer
+     */
+    public static IResource getSelectedResourceFromPackageExplorer()
     {
         IWorkbenchWindow window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
 
@@ -62,28 +73,19 @@ public class ProjectManager
         }
 
         IStructuredSelection iStructuredSelection = (IStructuredSelection) selection;
+
         Object element = iStructuredSelection.getFirstElement();
 
         if (element instanceof IResource)
         {
-            IResource resource = (IResource) element;
-
-            selectedProjectFolderFullPath = resource.getLocation().toOSString();
-            selectedProjectFolderPath = resource.getFullPath().toOSString();
-
-            return selectedProjectFolderFullPath;
+            return (IResource) element;
 
         }
         else if (element instanceof IAdaptable)
         {
             IAdaptable adaptable = (IAdaptable) element;
 
-            IResource resource = adaptable.getAdapter(IResource.class);
-
-            selectedProjectFolderFullPath = resource.getLocation().toOSString();
-            selectedProjectFolderPath = resource.getFullPath().toOSString();
-
-            return selectedProjectFolderFullPath;
+            return adaptable.getAdapter(IResource.class);
         }
 
         return null;
@@ -91,58 +93,23 @@ public class ProjectManager
 
 
 
-    public static void refreshFolder(String path)
+    /*
+     * Refresh given IResource
+     */
+    public static void refreshFolder(IResource resource)
     {
-        if (path == null)
+        if (resource != null)
         {
-            return;
-        }
-
-        if (path.startsWith("\\"))
-        {
-            path = path.replaceFirst(Pattern.quote(File.separator), "");
-        }
-
-        String projectName = null;
-        String folderPath = null;
-
-        int projectNameStartIndex = 0;
-        int projectNameEndIndex = path.indexOf("\\");
-
-        if (projectNameEndIndex == -1)
-        {
-            projectName = path.substring(projectNameStartIndex);
-        }
-        else
-        {
-            projectName = path.substring(0, projectNameEndIndex);
-
-            folderPath = path.substring(projectNameEndIndex);
-        }
-
-        IWorkspace workspace = ResourcesPlugin.getWorkspace();
-
-        IProject project = workspace.getRoot().getProject(projectName);
-
-        try
-        {
-            if (folderPath != null)
+            try
             {
-                IFolder folder = project.getFolder(folderPath);
-
-                folder.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+                resource.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
             }
-            else
+            catch (CoreException e)
             {
-                project.refreshLocal(IResource.DEPTH_INFINITE, new NullProgressMonitor());
+                e.printStackTrace();
             }
+        }
 
-        }
-        catch (CoreException e)
-        {
-            e.printStackTrace();
-        }
-      
     }
 
 }

@@ -49,21 +49,7 @@ public class ProjectExplorerTreeComparator extends ViewerComparator
         {
             return 1;
         }
-        else if (elementOne instanceof IFile && elementTwo instanceof IFile)
-        {
-            if (elementOne.toString().contains(".classpath") || elementOne.toString().contains(".project"))
-            {
-                return 1;
-            }
-            if (elementTwo.toString().contains(".classpath") || elementTwo.toString().contains(".project"))
-            {
-                return -1;
-            }
-            else
-            {
-                return 0;
-            }
-        }
+       
         else
         {
             return 0;
