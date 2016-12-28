@@ -13,7 +13,7 @@ import org.eclipse.jface.viewers.ViewerFilter;
  * @author mbaev
  *
  */
-public class ProjectsFilter extends ViewerFilter
+public class ProjectExplorerTreeFilter extends ViewerFilter
 {
 
     @Override
