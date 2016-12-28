@@ -74,7 +74,7 @@ public class TemplatePage extends WizardPage
     private PlaceholderContainer placeholderContainer;
     
     private String selectedProjectItemLocationPath;
-    private String selectedProjectItemParentPath;
+    private String selectedProjectItemFullPath;
     
     private IResource resource;
 
@@ -95,7 +95,7 @@ public class TemplatePage extends WizardPage
         this.placeholderContainer = new PlaceholderContainer();
         
         this.selectedProjectItemLocationPath = null;
-        this.selectedProjectItemParentPath = null;
+        this.selectedProjectItemFullPath = null;
         
         this.resource = null;
 
@@ -268,9 +268,9 @@ public class TemplatePage extends WizardPage
                     resource = (IResource) projectExplorerDialog.getFirstResult();
 
                     selectedProjectItemLocationPath = ProjectManager.getLocationPath(resource);
-                    selectedProjectItemParentPath = ProjectManager.getParentPath(resource);
+                    selectedProjectItemFullPath = ProjectManager.getFullPath(resource);
 
-                    addTextProjectPath(selectedProjectItemParentPath);
+                    addTextProjectPath(selectedProjectItemFullPath);
                 }
             }
 
@@ -284,9 +284,9 @@ public class TemplatePage extends WizardPage
         this.resource = ProjectManager.getSelectedResourceFromPackageExplorer();
 
         this.selectedProjectItemLocationPath = ProjectManager.getLocationPath(this.resource);
-        this.selectedProjectItemParentPath = ProjectManager.getParentPath(this.resource);
+        this.selectedProjectItemFullPath = ProjectManager.getFullPath(this.resource);
 
-        addTextProjectPath(this.selectedProjectItemParentPath);
+        addTextProjectPath(this.selectedProjectItemFullPath);
 
         searchTemplateForPlacehodlers();
 
@@ -312,7 +312,7 @@ public class TemplatePage extends WizardPage
 
 
     /*
-     * Add template path in text box
+     * Add template paths in combo box
      */
     private void addComboTemplatePaths()
     {
@@ -327,14 +327,16 @@ public class TemplatePage extends WizardPage
     }
 
 
-
+    /*
+     * Add project path in combo box
+     */
     private void addTextProjectPath(String fullPath)
     {
         if (fullPath == null)
         {
             return;
         }
-
+        
         txtProjectPath.setText(fullPath);
     }
 
