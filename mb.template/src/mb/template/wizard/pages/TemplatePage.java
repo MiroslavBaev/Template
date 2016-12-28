@@ -103,8 +103,6 @@ public class TemplatePage extends WizardPage
 
         this.selectedTemplate = null;
         this.projectFolderIsSelected = false;
-
-
     }
 
 
@@ -133,6 +131,11 @@ public class TemplatePage extends WizardPage
             {
                 if (((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == SWT.DEL))
                 {
+                    if(!combo.getListVisible())
+                    {
+                        return;
+                    }
+                    
                     templatesStorage.removePath(combo.getSelectionIndex());
 
                     addComboTemplatePaths();
@@ -153,6 +156,7 @@ public class TemplatePage extends WizardPage
             }
 
         });
+
         //
         comboTemplatePaths.setContentProvider(ArrayContentProvider.getInstance());
         comboTemplatePaths.setLabelProvider(new LabelProvider()
@@ -322,7 +326,10 @@ public class TemplatePage extends WizardPage
         if (templates != null)
         {
             comboTemplatePaths.setInput(templates);
+
+            comboTemplatePaths.getCombo().select(0);
         }
+        
     }
 
 

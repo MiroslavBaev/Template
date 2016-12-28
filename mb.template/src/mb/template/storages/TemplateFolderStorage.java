@@ -116,7 +116,9 @@ public class TemplateFolderStorage
     public void removePath(int index)
     {
         List<TemplateFolder> templates = this.loadPaths();
-        if (templates == null)
+        
+        if (templates == null ||
+                templates.size() <= index)
         {
             return;
         }
