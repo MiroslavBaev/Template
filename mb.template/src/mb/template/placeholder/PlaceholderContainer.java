@@ -31,7 +31,7 @@ public class PlaceholderContainer extends AbstractBean
 
     public void addPlaceholder(Placeholder placeholder)
     {
-        if (placeholders.contains(placeholder))
+        if (this.placeholders.contains(placeholder))
         {
             return;
         }

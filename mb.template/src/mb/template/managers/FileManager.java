@@ -6,7 +6,7 @@ import org.eclipse.core.runtime.IProgressMonitor;
 
 
 /**
- * File manager. Search all files in given directory
+ * File manager. Search for source and header files in given directory
  * 
  * @author mbaev
  *
@@ -21,9 +21,7 @@ public class FileManager
 
 
     /*
-     * 
      * Recursively files searching
-     * 
      */
     public ArrayList<File> searchFilesInDirectory(File directory, IProgressMonitor monitor)
     {

@@ -23,7 +23,7 @@ import org.eclipse.core.resources.ResourcesPlugin;
 public class TemplateFolderStorage
 {
     String settingDirectoryPath;
-    String storageFilePath;
+    String storageFile;
     String fullPath;
 
 
@@ -31,8 +31,8 @@ public class TemplateFolderStorage
     public TemplateFolderStorage()
     {
         this.settingDirectoryPath = ResourcesPlugin.getWorkspace().getRoot().getLocation().toString() + "/.settings";
-        this.storageFilePath = "/templates.ser";
-        this.fullPath = settingDirectoryPath + storageFilePath;
+        this.storageFile = "/templates.ser";
+        this.fullPath = this.settingDirectoryPath + this.storageFile;
     }
 
 
@@ -43,14 +43,13 @@ public class TemplateFolderStorage
 
         try
         {
-            FileOutputStream fos = new FileOutputStream(fullPath);
+            FileOutputStream fos = new FileOutputStream(this.fullPath);
             ObjectOutputStream oos = new ObjectOutputStream(fos);
             oos.writeObject(templates.toArray());
             oos.close();
         }
         catch (IOException e)
         {
-            // TODO Can't save a template objects in temporary file
             e.printStackTrace();
         }
 
@@ -81,7 +80,6 @@ public class TemplateFolderStorage
         }
         catch (IOException | ClassNotFoundException e)
         {
-            // TODO Can't load serialization objects
             e.printStackTrace();
         }
 
@@ -131,7 +129,6 @@ public class TemplateFolderStorage
 
 
     /*
-     * 
      * Create template object from path, add it to template list and return its index. If object with this path exist, only return index.
      * Method return position index of object in List. This index used with Combo box.
      */
@@ -197,7 +194,7 @@ public class TemplateFolderStorage
 
 
         // Create storage file
-        File storageFile = new File(fullPath);
+        File storageFile = new File(this.fullPath);
 
         if (!storageFile.exists())
         {

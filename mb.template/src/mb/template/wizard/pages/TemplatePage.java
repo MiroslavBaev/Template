@@ -61,7 +61,6 @@ import org.eclipse.jface.viewers.ComboViewer;
  * Wizard page. Select a directory where the template to be copied
  * 
  * @author mbaev
- *
  */
 public class TemplatePage extends WizardPage
 {
@@ -72,15 +71,15 @@ public class TemplatePage extends WizardPage
     private ComboViewer comboTemplatePaths;
 
     private PlaceholderContainer placeholderContainer;
-    
+
     private String selectedProjectItemLocationPath;
     private String selectedProjectItemFullPath;
-    
+
     private IResource resource;
 
     private TemplateFolderStorage templatesStorage;
     private PlaceholderManager placeholderManager;
-    
+
     private TemplateFolder selectedTemplate;
     private boolean projectFolderIsSelected;
 
@@ -93,19 +92,19 @@ public class TemplatePage extends WizardPage
         setDescription("Create a new template");
 
         this.placeholderContainer = new PlaceholderContainer();
-        
+
         this.selectedProjectItemLocationPath = null;
         this.selectedProjectItemFullPath = null;
-        
+
         this.resource = null;
 
         this.templatesStorage = new TemplateFolderStorage();
         this.placeholderManager = new PlaceholderManager();
-        
+
         this.selectedTemplate = null;
         this.projectFolderIsSelected = false;
 
-        
+
     }
 
 
@@ -327,6 +326,7 @@ public class TemplatePage extends WizardPage
     }
 
 
+
     /*
      * Add project path in combo box
      */
@@ -336,7 +336,7 @@ public class TemplatePage extends WizardPage
         {
             return;
         }
-        
+
         txtProjectPath.setText(fullPath);
     }
 

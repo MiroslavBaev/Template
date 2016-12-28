@@ -20,8 +20,6 @@ public class SearchManager
     private List<String> foundMatches;
     private List<Pattern> patterns;
     
-    boolean caseSensitive;
-    
     private Matcher matcher;
 
 
@@ -31,31 +29,28 @@ public class SearchManager
     {
         this.foundMatches = new ArrayList<>();
         this.patterns = patterns;
-        
         this.matcher = null;
     }
 
 
 
     /*
-     * 
      * Search content by pattern and return matches
-     * 
      */
     public List<String> search(String content)
     {
         for (Pattern pattern : patterns)
         {
-            matcher = pattern.matcher(content);
+            this.matcher = pattern.matcher(content);
 
             while (matcher.find())
             {
-                foundMatches.add(matcher.group());
+                this.foundMatches.add(matcher.group());
             }
 
         }
 
-        return foundMatches;
+        return this.foundMatches;
     }
 
 

@@ -29,21 +29,20 @@ import mb.template.placeholder.commands.ICommand;
 public class PlaceholderManager
 {
     private SearchManager searchManager;
-
     private Commands allCommands;
 
-    
+
+
     public PlaceholderManager()
     {
         this.searchManager = new SearchManager(new PlaceholderPattern().getPatterns());
         this.allCommands = new Commands();
     }
 
-    
+
+
     /*
-     * 
-     * Search placeholder in file names and file contents 
-     * 
+     * Search placeholder in file names and file contents
      */
     public ArrayList<String> searchPlaceholdersInFiles(List<File> files, IProgressMonitor monitor)
     {
@@ -60,9 +59,9 @@ public class PlaceholderManager
             }
 
             // Search in filename
-            String fileNameWithoutExtension = searchManager.removeExtensionFromFile(files.get(i).getName());
+            String fileNameWithoutExtension = this.searchManager.removeExtensionFromFile(files.get(i).getName());
 
-            foundedMatches = searchManager.search(fileNameWithoutExtension);
+            foundedMatches = this.searchManager.search(fileNameWithoutExtension);
 
             for (String foundMatch : foundedMatches)
             {
@@ -82,12 +81,19 @@ public class PlaceholderManager
                 {
                     String content = new String(Files.readAllBytes(path), charset);
 
-                    foundedMatches = searchManager.search(content);
+                    foundedMatches = this.searchManager.search(content);
                 }
                 catch (IOException e)
                 {
-                    MessageDialog.openInformation(Display.getCurrent().getActiveShell(), 
-                            "Error", "There was a problem with reading the template files");
+
+                    Display.getDefault().syncExec(new Runnable()
+                    {
+                        public void run()
+                        {
+                            MessageDialog.openError(Display.getDefault().getActiveShell(),
+                                    "Error", "There was a problem with reading the template files");
+                        }
+                    });
 
                     e.printStackTrace();
                 }
@@ -100,16 +106,15 @@ public class PlaceholderManager
                         allFoundPlaceholders.add(foundMatch);
                     }
                 }
-                
-                
+
             }
         }
 
         return allFoundPlaceholders;
     }
-    
-    
-    
+
+
+
     public void copyFilesAndReplacePlaceholders(File source, File destination, List<Placeholder> placeholders)
     {
         if (source.isDirectory())
@@ -149,7 +154,8 @@ public class PlaceholderManager
             }
             catch (IOException e)
             {
-                MessageDialog.openInformation(Display.getCurrent().getActiveShell(), "Error", "There was a problem with copy the template files");
+                MessageDialog.openError(Display.getCurrent().getActiveShell(),
+                        "Error", "There was a problem with copy the template files");
 
                 e.printStackTrace();
             }
@@ -157,16 +163,16 @@ public class PlaceholderManager
         }
     }
 
+
+
     /*
-     * 
      * Replace placeholders in name for a given file
-     * 
      */
     public File replacePlaceholderInFileName(File file, List<Placeholder> placeholders)
     {
         String filename = file.getName();
 
-        filename = searchManager.removeExtensionFromFile(filename);
+        filename = this.searchManager.removeExtensionFromFile(filename);
 
 
         if (placeholders.size() <= 0)
@@ -181,12 +187,12 @@ public class PlaceholderManager
         {
             String modifiedValue = processCommand(placeholder);
 
-            String escapedPlaceholder = searchManager.escapeName(placeholder.getPlaceholder().toString());
+            String escapedPlaceholder = this.searchManager.escapeName(placeholder.getPlaceholder().toString());
 
             newPath = oldPath.replaceAll(
                     escapedPlaceholder,
                     modifiedValue);
-            
+
             oldPath = newPath;
         }
         return new File(newPath);
@@ -195,17 +201,15 @@ public class PlaceholderManager
 
 
     /*
-     * 
      * Replace placeholders in content for a given file
-     * 
      */
     public String replacePlaceholderInFileContent(String content, List<Placeholder> placeholders)
     {
         for (Placeholder placeholder : placeholders)
         {
             String modifiedValue = processCommand(placeholder);
-            
-            String escapedPlaceholder = searchManager.escapeName(placeholder.getPlaceholder());
+
+            String escapedPlaceholder = this.searchManager.escapeName(placeholder.getPlaceholder());
 
             content = content.replaceAll(
                     escapedPlaceholder,
@@ -218,15 +222,13 @@ public class PlaceholderManager
 
 
     /*
-     * 
      * Get command from placeholder and modify placeholder value;
-     * 
      */
     private String processCommand(Placeholder placeholder)
     {
         if (placeholder.getCommand() != null)
         {
-            for (ICommand command : allCommands.getAllCommands())
+            for (ICommand command : this.allCommands.getAllCommands())
             {
                 if (placeholder.getCommand().equals(command.getName()))
                 {
@@ -236,7 +238,6 @@ public class PlaceholderManager
         }
         return placeholder.getValue();
     }
-
 
 
 }

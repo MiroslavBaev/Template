@@ -9,7 +9,7 @@ package mb.template.placeholder.commands;
  */
 public class UppercaseCommand implements ICommand
 {
-    private final String name = "uppercase";
+    private final static String name = "uppercase";
 
 
 

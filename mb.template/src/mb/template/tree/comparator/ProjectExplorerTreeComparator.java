@@ -16,7 +16,6 @@ import org.eclipse.jface.viewers.ViewerComparator;
  */
 public class ProjectExplorerTreeComparator extends ViewerComparator
 {
-
     @Override
     public int compare(Viewer viewer, Object elementOne, Object elementTwo)
     {
@@ -49,7 +48,6 @@ public class ProjectExplorerTreeComparator extends ViewerComparator
         {
             return 1;
         }
-       
         else
         {
             return 0;

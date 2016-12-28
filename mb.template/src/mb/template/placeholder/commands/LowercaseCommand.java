@@ -10,7 +10,7 @@ package mb.template.placeholder.commands;
 public class LowercaseCommand implements ICommand
 {
 
-    private final String name = "lowercase";
+    private final static String name = "lowercase";
 
 
 
