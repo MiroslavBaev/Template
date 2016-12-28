@@ -9,18 +9,17 @@ import org.eclipse.core.databinding.beans.BeanProperties;
 import org.eclipse.core.databinding.observable.list.IObservableList;
 import org.eclipse.core.databinding.observable.map.IObservableMap;
 import org.eclipse.core.databinding.observable.set.IObservableSet;
-import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.databinding.viewers.ObservableListContentProvider;
 import org.eclipse.jface.databinding.viewers.ObservableMapLabelProvider;
-import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TableViewerColumn;
+import org.eclipse.jface.window.Window;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyAdapter;
@@ -32,12 +31,9 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
-import org.eclipse.swt.widgets.Event;
 
-import mb.template.dialog.ProjectExplorerDialog;
 import mb.template.help.TemplateHelpContextIds;
 import mb.template.listeners.IChangeValueListener;
-import mb.template.listeners.IClickListener;
 import mb.template.managers.FileManager;
 import mb.template.managers.PlaceholderManager;
 import mb.template.managers.ProjectManager;
@@ -45,14 +41,13 @@ import mb.template.placeholder.Placeholder;
 import mb.template.placeholder.PlaceholderContainer;
 import mb.template.storages.TemplateFolder;
 import mb.template.storages.TemplateFolderStorage;
+import mb.template.tree.ProjectExplorerTree;
 import mb.template.validator.Validator;
 import mb.template.wizard.table.editor.ColumnEditingSupport;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.dialogs.ElementTreeSelectionDialog;
 import org.eclipse.ui.model.BaseWorkbenchContentProvider;
 import org.eclipse.ui.model.WorkbenchLabelProvider;
 import org.eclipse.swt.layout.GridData;
@@ -113,7 +108,6 @@ public class TemplatePage extends WizardPage
         this.container.setLayout(new GridLayout(3, false));
         //
         setControl(this.container);
-        setPageComplete(false);
         //
         PlatformUI.getWorkbench().getHelpSystem().setHelp(container, TemplateHelpContextIds.TEMPLATE_WIZARD);
         //
@@ -186,7 +180,7 @@ public class TemplatePage extends WizardPage
             @Override
             public void modifyText(ModifyEvent e)
             {
-                setPageComplete(true);
+                //setPageComplete(true);
                 setErrorMessage(null);
 
                 projectFolderIsSelected = true;
@@ -257,16 +251,18 @@ public class TemplatePage extends WizardPage
             @Override
             public void widgetSelected(SelectionEvent e)
             {
-                ProjectExplorerDialog projectExplorerDialog = new ProjectExplorerDialog(parent.getShell(), new WorkbenchLabelProvider(), new BaseWorkbenchContentProvider());
+                ProjectExplorerTree projectExplorerDialog = new ProjectExplorerTree(parent.getShell(), new WorkbenchLabelProvider(), new BaseWorkbenchContentProvider());
 
                 projectExplorerDialog.setInput(ResourcesPlugin.getWorkspace().getRoot());
 
-                projectExplorerDialog.open();
+                if(projectExplorerDialog.open() == Window.OK)
+                {
 
                 selectedProjectFolderFullPath = projectExplorerDialog.getSelectedProjectFromProjectExplorerFullPath();
                 selectedProjectFolderPath = projectExplorerDialog.getSelectedProjectFolder();
 
                 addTextProjectPath(selectedProjectFolderPath);
+                }
             }
 
         });
@@ -327,12 +323,12 @@ public class TemplatePage extends WizardPage
         {
             return;
         }
-        
-        if(fullPath.startsWith("\\"))
+
+        if (fullPath.startsWith("\\"))
         {
-           fullPath = fullPath.substring(1); 
+            fullPath = fullPath.substring(1);
         }
-        
+
         txtProjectPath.setText(fullPath);
     }
 
@@ -503,11 +499,13 @@ public class TemplatePage extends WizardPage
 
         };
         this.viewer.setLabelProvider(labelProvider);
-        //
+        
         IObservableList changesTheBeanObserveList = BeanProperties.list("placeholders").observe(this.placeholderContainer);
-        //
+        
         this.viewer.setInput(changesTheBeanObserveList);
 
+        setPageComplete(false);
+        
         return bindingContext;
     }
 
