@@ -1,12 +1,17 @@
 package mb.template.wizard;
 
 import java.lang.reflect.InvocationTargetException;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
+
 import mb.template.wizard.pages.TemplatePage;
 
 
@@ -19,15 +24,16 @@ public class TemplateWizard extends Wizard implements INewWizard
 {
     
     private TemplatePage templatePage;
-
-
+    private Image pageImage;
 
     public TemplateWizard()
     {
         super();
-
+        
+        this.pageImage = new Image(Display.getCurrent(), 1, 1);
+        setDefaultPageImageDescriptor(ImageDescriptor.createFromImage(this.pageImage));
+        
         setWindowTitle("Template Wizard");
-
         setNeedsProgressMonitor(true);
         this.templatePage = new TemplatePage();
     }

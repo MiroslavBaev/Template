@@ -11,7 +11,7 @@
       <wizard
             category="mb.template.categoryWizard"
             class="mb.template.wizard.TemplateWizard"
-            icon="icons/sample.gif"
+            icon="icons/template.png"
             id="mb.template.wizard"
             name="Template Wizard">
       </wizard>
@@ -39,7 +39,7 @@
             locationURI="popup:common.new.menu?after=additions">
          <command
                commandId="mb.template.commands.menuCommand"
-               icon="icons/sample.gif"
+               icon="icons/template.png"
                label="Source and Header"
                style="push">
          </command>
