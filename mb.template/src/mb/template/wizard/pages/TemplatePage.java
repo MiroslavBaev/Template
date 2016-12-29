@@ -2,7 +2,6 @@ package mb.template.wizard.pages;
 
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.List;
 import org.eclipse.core.databinding.DataBindingContext;
 import org.eclipse.core.databinding.beans.BeanProperties;
@@ -78,17 +77,14 @@ public class TemplatePage extends WizardPage
     private IResource resource;
 
     private TemplateFolderStorage templatesStorage;
-    private PlaceholderManager placeholderManager;
-
     private TemplateFolder selectedTemplate;
-    private boolean projectFolderIsSelected;
 
 
 
     public TemplatePage()
     {
-        super("Select project");
-        setTitle("Template");
+        super("Templates");
+        setTitle("Templates");
         setDescription("Create a new template");
 
         this.placeholderContainer = new PlaceholderContainer();
@@ -99,10 +95,7 @@ public class TemplatePage extends WizardPage
         this.resource = null;
 
         this.templatesStorage = new TemplateFolderStorage();
-        this.placeholderManager = new PlaceholderManager();
-
         this.selectedTemplate = null;
-        this.projectFolderIsSelected = false;
     }
 
 
@@ -117,13 +110,14 @@ public class TemplatePage extends WizardPage
         PlatformUI.getWorkbench().getHelpSystem().setHelp(container, TemplateHelpContextIds.TEMPLATE_WIZARD);
         //
         Label lblTemplateSourceFolder = new Label(container, SWT.NONE);
-        lblTemplateSourceFolder.setText(" Source template folder");
+        lblTemplateSourceFolder.setText("Source template folder");
         //
         comboTemplatePaths = new ComboViewer(container, SWT.READ_ONLY | SWT.V_SCROLL);
         Combo combo = comboTemplatePaths.getCombo();
         combo.setVisibleItemCount(8);
         combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
         // Delete combo items
+        combo.setToolTipText("Press CTRL+DEL on highlighted path to remove it");
         combo.addKeyListener(new KeyAdapter()
         {
             @Override
@@ -131,11 +125,11 @@ public class TemplatePage extends WizardPage
             {
                 if (((e.stateMask & SWT.CTRL) == SWT.CTRL) && (e.keyCode == SWT.DEL))
                 {
-                    if(!combo.getListVisible())
+                    if (!combo.getListVisible())
                     {
                         return;
                     }
-                    
+
                     templatesStorage.removePath(combo.getSelectionIndex());
 
                     addComboTemplatePaths();
@@ -150,13 +144,14 @@ public class TemplatePage extends WizardPage
             @Override
             public void widgetSelected(SelectionEvent e)
             {
-                getSelectedTemplateFromCombo();
+                
+                selectedTemplate = getSelectedTemplateFromCombo();
+                searchTemplateForPlacehodlers(selectedTemplate.getPath());
 
-                searchTemplateForPlacehodlers();
+                Validate();
             }
 
         });
-
         //
         comboTemplatePaths.setContentProvider(ArrayContentProvider.getInstance());
         comboTemplatePaths.setLabelProvider(new LabelProvider()
@@ -174,30 +169,30 @@ public class TemplatePage extends WizardPage
         });
         //
         Button btnTemplateSourceFolderBrowse = new Button(container, SWT.NONE);
-        btnTemplateSourceFolderBrowse.setText("Browse..");
+        btnTemplateSourceFolderBrowse.setText("Browse ..");
         //
         Label lblSeparator = new Label(container, SWT.NONE | SWT.SEPARATOR | SWT.HORIZONTAL);
         lblSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
         //
         Label lblProjectFolder = new Label(container, SWT.NONE);
-        lblProjectFolder.setText("Export project folder");
+        lblProjectFolder.setText("Output project folder");
         //
         txtProjectPath = new Text(container, SWT.BORDER);
         txtProjectPath.setEditable(false);
         txtProjectPath.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 1, 1));
+
         txtProjectPath.addModifyListener(new ModifyListener()
         {
+
             @Override
             public void modifyText(ModifyEvent e)
             {
-                setErrorMessage(null);
-
-                projectFolderIsSelected = true;
+                Validate();
             }
         });
         //
         Button btnProjectFolder = new Button(container, SWT.NONE);
-        btnProjectFolder.setText("Browse..");
+        btnProjectFolder.setText("Browse ..");
         //
         lblSeparator = new Label(container, SWT.NONE | SWT.SEPARATOR | SWT.HORIZONTAL);
         lblSeparator.setLayoutData(new GridData(SWT.FILL, SWT.FILL, false, false, 3, 1));
@@ -226,7 +221,9 @@ public class TemplatePage extends WizardPage
                 DirectoryDialog directoryDialog = new DirectoryDialog(parent.getShell());
 
                 directoryDialog.setText("Browse Template Folder");
-                directoryDialog.setMessage("Select template folder:");
+                directoryDialog.setMessage("Select source template folder:");
+
+                selectedTemplate = getSelectedTemplateFromCombo();
 
                 if (selectedTemplate != null)
                 {
@@ -243,10 +240,10 @@ public class TemplatePage extends WizardPage
                 int indexOfSelection = templatesStorage.addPath(newPath);
 
                 addComboTemplatePaths();
-                combo.select(indexOfSelection);
-                getSelectedTemplateFromCombo();
 
-                searchTemplateForPlacehodlers();
+                combo.select(indexOfSelection);
+
+                searchTemplateForPlacehodlers(selectedTemplate.getPath());
             }
 
         });
@@ -280,9 +277,6 @@ public class TemplatePage extends WizardPage
         });
 
         addComboTemplatePaths();
-        combo.select(0);
-
-        getSelectedTemplateFromCombo();
 
         this.resource = ProjectManager.getSelectedResourceFromPackageExplorer();
 
@@ -291,25 +285,24 @@ public class TemplatePage extends WizardPage
 
         addTextProjectPath(this.selectedProjectItemFullPath);
 
-        searchTemplateForPlacehodlers();
-
         initDataBindings();
     }
 
 
 
-    private void getSelectedTemplateFromCombo()
+    /*
+     * Get selected template from combo and search for placeholders
+     */
+    private TemplateFolder getSelectedTemplateFromCombo()
     {
         IStructuredSelection selection = comboTemplatePaths.getStructuredSelection();
 
         if (selection == null)
         {
-            return;
+            return null;
         }
 
-        TemplateFolder template = (TemplateFolder) selection.getFirstElement();
-
-        this.selectedTemplate = template;
+        return (TemplateFolder) selection.getFirstElement();
     }
 
 
@@ -326,10 +319,8 @@ public class TemplatePage extends WizardPage
         if (templates != null)
         {
             comboTemplatePaths.setInput(templates);
-
-            comboTemplatePaths.getCombo().select(0);
         }
-        
+
     }
 
 
@@ -349,9 +340,14 @@ public class TemplatePage extends WizardPage
 
 
 
-    private void searchTemplateForPlacehodlers()
+    public void searchTemplateForPlacehodlers(String templatePath)
     {
         placeholderContainer.clear();
+
+        if (!Validator.directoryExist(templatePath))
+        {
+            return;
+        }
 
         try
         {
@@ -362,7 +358,15 @@ public class TemplatePage extends WizardPage
                 {
                     monitor.beginTask("Search files for placeholders", IProgressMonitor.UNKNOWN);
 
-                    findPlaceholdersInFiles(monitor);
+                    FileManager fileManager = new FileManager();
+                    PlaceholderManager placeholderManager = new PlaceholderManager();
+
+                    // Recursive files searching.Input - path Output - files
+                    List<File> files = fileManager.searchFilesInDirectory(new File(templatePath), monitor);
+                    // Placeholders searching.
+                    List<String> allPlaceholders = placeholderManager.searchPlaceholdersInFiles(files, monitor);
+                    // Update table view with placeholders
+                    updatePlaceholdersTableView(allPlaceholders);
                 }
             });
         }
@@ -377,23 +381,9 @@ public class TemplatePage extends WizardPage
     /*
      * Search placeholders in directory
      */
-    private void findPlaceholdersInFiles(IProgressMonitor monitor)
+    private void updatePlaceholdersTableView(List<String> placeholders)
     {
-        if (this.selectedTemplate == null)
-        {
-            return;
-        }
-
-        List<String> allPlaceholders = new ArrayList<>();
-
-        FileManager fileManager = new FileManager();
-
-        // Recursive searching.Input - path Output - files
-        List<File> files = fileManager.searchFilesInDirectory(new File(this.selectedTemplate.getPath()), monitor);
-
-        allPlaceholders = this.placeholderManager.searchPlaceholdersInFiles(files, monitor);
-
-        for (String placeholder : allPlaceholders)
+        for (String placeholder : placeholders)
         {
             Placeholder placeholderBean = new Placeholder(placeholder);
 
@@ -418,15 +408,17 @@ public class TemplatePage extends WizardPage
      */
     public void copyTemplateAndReplaceyPlaceholders()
     {
-        if (this.selectedTemplate == null)
+        if (selectedTemplate == null)
         {
             return;
         }
 
-        this.placeholderManager.copyFilesAndReplacePlaceholders(
-                new File(this.selectedTemplate.getPath()), new File(this.selectedProjectItemLocationPath), this.placeholderContainer.getPlaceholders());
+        PlaceholderManager placeholderManager = new PlaceholderManager();
 
-        this.templatesStorage.incrementNumberOfSelection(this.selectedTemplate);
+        placeholderManager.copyFilesAndReplacePlaceholders(
+                new File(selectedTemplate.getPath()), new File(this.selectedProjectItemLocationPath), this.placeholderContainer.getPlaceholders());
+
+        this.templatesStorage.incrementNumberOfSelection(selectedTemplate);
 
         ProjectManager.refreshFolder(this.resource);
     }
@@ -434,10 +426,56 @@ public class TemplatePage extends WizardPage
 
 
     /*
-     * Validate table input
+     * Validate input data
      */
-    private boolean Validate()
+    private void Validate()
     {
+        if (getSelectedTemplateFromCombo() == null)
+        {
+            setErrorMessage("Select source template folder");
+            setPageComplete(false);
+
+            return;
+        }
+        else
+        {
+            setErrorMessage(null);
+        }
+
+        if (!Validator.directoryExist(getSelectedTemplateFromCombo().getPath()))
+        {
+            setErrorMessage("Selected source template folder is not exist");
+            setPageComplete(false);
+
+            return;
+        }
+        else
+        {
+            setErrorMessage(null);
+        }
+
+        if (txtProjectPath.getText() == null)
+        {
+            setErrorMessage("Project foldert should be selected!");
+            setPageComplete(false);
+
+            return;
+        }
+        else
+        {
+            setErrorMessage(null);
+        }
+
+        if (this.placeholderContainer.getPlaceholders().size() <= 0)
+        {
+            setMessage("In this folder does not exist files with placeholders");
+
+            return;
+        }
+        else
+        {
+            setMessage(null);
+        }
 
         for (Placeholder placeholder : this.placeholderContainer.getPlaceholders())
         {
@@ -445,35 +483,24 @@ public class TemplatePage extends WizardPage
             if (Validator.filenameIsEmpty(placeholder.getValue()))
             {
                 setErrorMessage("Please fill all fields!");
-
                 setPageComplete(false);
 
-                return false;
+                return;
+
             }
 
             // Validate - first letter can't be symbol or number
             if (Validator.filenameStartWithNumberOrSymbol(placeholder.getValue()))
             {
                 setErrorMessage("Field can't start with number or symbol!");
-
                 setPageComplete(false);
 
-                return false;
+                return;
             }
         }
 
-        if (projectFolderIsSelected)
-        {
-            setPageComplete(true);
+        setPageComplete(true);
 
-            setErrorMessage(null);
-        }
-        else
-        {
-            setErrorMessage("Project foldert should be selected!");
-        }
-
-        return true;
     }
 
 

@@ -1,5 +1,6 @@
 package mb.template.validator;
 
+import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -49,6 +50,23 @@ public class Validator
             return false;
         }
 
+    }
+    
+    public static boolean directoryExist(String path)
+    {
+        if(path == null)
+        {
+            return false;
+        }
+        
+        if(new File(path).exists())
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
     
 }
