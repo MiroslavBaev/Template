@@ -2,6 +2,6 @@
 <contexts>
 <context id="templateHelp" title="About new template wizard">
       <description>Create new template.</description>
-      <topic href="html/gettingstarted/subtopic.html" label="Details..."/>
+      <topic href="html/gettingstarted/subtopic.html" label="Using the Template Wizard"/>
    </context>
 </contexts>

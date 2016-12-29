@@ -5,7 +5,4 @@
    <topic label="Getting Started">
       <link toc="tocgettingstarted.xml"/>
    </topic>
-   <topic label="Reference">
-      <link toc="tocreference.xml"/>
-   </topic>
 </toc>

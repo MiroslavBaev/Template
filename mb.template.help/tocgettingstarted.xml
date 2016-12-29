@@ -5,7 +5,4 @@
 	<topic label="Main Topic"  href="html/gettingstarted/maintopic.html"> 
 		<topic label="Sub Topic" href="html/gettingstarted/subtopic.html" /> 
 	</topic>
-	<topic label="Main Topic 2">
-		<topic label="Sub Topic 2" href="html/gettingstarted/subtopic2.html" />
-	</topic> 
 </toc>
